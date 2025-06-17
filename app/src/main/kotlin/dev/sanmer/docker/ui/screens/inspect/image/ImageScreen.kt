@@ -97,7 +97,7 @@ fun ImageScreen(
         topBar = {
             TopBar(
                 onRefresh = viewModel::loadData,
-                name = viewModel.name ?: stringResource(R.string.image_untagged),
+                name = viewModel.name.ifEmpty { stringResource(R.string.image_untagged) },
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )

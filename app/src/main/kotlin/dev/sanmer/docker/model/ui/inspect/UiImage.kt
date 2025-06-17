@@ -17,7 +17,7 @@ data class UiImage(
     }
 
     val name by lazy {
-        original.repoTags.firstOrNull()
+        original.repoTags.firstOrNull()?.imageName().orEmpty()
     }
 
     val repoTags by lazy {
@@ -68,6 +68,13 @@ data class UiImage(
 
         val size by lazy {
             original.size.sizeBySI()
+        }
+    }
+
+    companion object Default {
+        fun String.imageName(): String {
+            return "(?:.*/)?([^:/]+)(?::[^/]+)?$".toRegex()
+                .find(this)?.groups?.get(1)?.value.orEmpty()
         }
     }
 }

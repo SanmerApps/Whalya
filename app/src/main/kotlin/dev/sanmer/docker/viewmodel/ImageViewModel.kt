@@ -34,7 +34,7 @@ class ImageViewModel @Inject constructor(
     private val image = savedStateHandle.toRoute<Screen.Image>()
     private val docker by lazy { dockerRepository.currentDocker() }
 
-    var name by mutableStateOf<String?>(image.id.shortId())
+    var name by mutableStateOf(image.id.shortId())
         private set
 
     var data by mutableStateOf<LoadData<UiImage>>(LoadData.Loading)
@@ -63,9 +63,9 @@ class ImageViewModel @Inject constructor(
             data = runCatching {
                 docker.images.inspect(
                     id = image.id
-                ).also {
-                    name = it.repoTags.firstOrNull()
-                }.let(::UiImage)
+                ).let(::UiImage).also {
+                    name = it.name
+                }
             }.onFailure {
                 Timber.e(it)
             }.asLoadData()
