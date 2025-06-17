@@ -1,1 +1,3 @@
--keep class dev.sanmer.core.PkiTypes { *; }
+-keep class dev.sanmer.core.PkiTypes$PrivatePkcs8KeyDer {
+    public <init> (...);
+}
