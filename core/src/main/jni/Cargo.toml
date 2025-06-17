@@ -1,0 +1,18 @@
+[package]
+name = "pki_types"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "pki_types"
+crate-type = ["cdylib"]
+
+[dependencies.tls-pki-types]
+git = "https://github.com/SanmerDev/tls-pki-types.git"
+
+[dependencies.typed-jni]
+git = "https://github.com/SanmerDev/typed-jni-rs.git"
+
+[profile.release]
+strip = "symbols"
+lto = true

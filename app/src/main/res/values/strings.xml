@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Servers -->
+    <string name="server_title">Servers</string>
+    <string name="server_add_title">Add Server</string>
+    <string name="server_edit_title">Edit Server</string>
+    <string name="server_name">Name</string>
+    <string name="server_api_endpoint">API Endpoint</string>
+    <string name="server_mutual_tls">Mutual TLS</string>
+    <string name="sever_ca_cert">CA</string>
+    <string name="sever_client_cert">Certificate</string>
+    <string name="sever_client_key">Private Key</string>
+    <string name="server_from_file">Load from File</string>
+
+    <!--Settings -->
+    <string name="setting_title">Settings</string>
+
+    <!-- Home -->
+    <string name="home_system">System</string>
+    <string name="home_containers">Containers</string>
+    <string name="home_images">Images</string>
+    <string name="home_networks">Networks</string>
+    <string name="home_volumes">Volumes</string>
+
+    <!-- System -->
+    <string name="os_system">System</string>
+    <string name="os_kernel">Kernel</string>
+    <string name="os_platform">Platform</string>
+    <string name="docker_api">API Version</string>
+    <string name="docker_root_dir">Root Directory</string>
+    <string name="docker_go_version">Go Version</string>
+    <string name="docker_build_time">Build Time</string>
+    <string name="docker_components">Components</string>
+
+    <!-- Containers -->
+    <string name="container_ports">Ports</string>
+    <string name="container_networks">Networks</string>
+    <string name="container_command">Command</string>
+    <string name="container_pid">Pid</string>
+    <string name="container_restart_policy">Restart Policy</string>
+
+    <!-- Container Stats -->
+    <string name="stats_cpu">CPU</string>
+    <string name="stats_memory">Memory</string>
+    <string name="stats_network">Network I/O</string>
+    <string name="stats_block">Block I/O</string>
+    <string name="stats_process_ids">Process-IDs</string>
+    <string name="stats_timestamp">Timestamp</string>
+
+    <!-- Images -->
+    <string name="image_command">Command</string>
+    <string name="image_tags">Tags</string>
+    <string name="image_digests">Digests</string>
+    <string name="image_untagged">Untagged</string>
+    <string name="image_layers">Layers</string>
+
+    <!-- Networks -->
+    <string name="network_subnet">Subnet</string>
+    <string name="network_gateway">Gateway</string>
+    <string name="network_ipv4_address">IPv4 Address</string>
+    <string name="network_ipv6_address">IPv6 Address</string>
+    <string name="network_mac_address">MAC Address</string>
+    <string name="network_dns">DNS</string>
+
+    <!-- Mounts -->
+    <string name="mount_point">Mount Point</string>
+    <string name="mount_destination">Destination</string>
+
+    <!-- Labels -->
+    <string name="labels">Labels</string>
+    <string name="driver">Driver</string>
+    <string name="size">Size</string>
+    <string name="scope">Scope: %1$s</string>
+    <string name="compose_version">Compose: %1$s</string>
+    <string name="compose_project">Project: %1$s</string>
+
+    <!-- Prune -->
+    <string name="prune_title">Remove Unused Data</string>
+    <string name="prune_containers">Delete stopped containers</string>
+    <string name="prune_images">Delete unused images</string>
+    <string name="prune_networks">Delete unused networks</string>
+    <string name="prune_volumes">Delete unused volumes</string>
+    <string name="prune_removed">Removed: %1$d</string>
+    <string name="prune_reclaimed">Reclaimed: %1$s</string>
+
+    <!-- Operation -->
+    <string name="operation_title">Operation</string>
+    <string name="operation_start">Start</string>
+    <string name="operation_stop">Stop</string>
+    <string name="operation_restart">Restart</string>
+    <string name="operation_pause">Pause</string>
+    <string name="operation_unpause">Unpause</string>
+    <string name="operation_remove">Remove</string>
+
+</resources>

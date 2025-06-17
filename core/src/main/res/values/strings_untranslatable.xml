@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="maintainer" translatable="false">@string/org.opencontainers.image.authors</string>
+    <string name="version" translatable="false">@string/org.opencontainers.image.version</string>
+    <string name="description" translatable="false">@string/org.opencontainers.image.description</string>
+    <string name="build_date" translatable="false">@string/org.opencontainers.image.created</string>
+
+    <string name="org.label_schema.build_date" translatable="false">@string/org.opencontainers.image.created</string>
+    <string name="org.label_schema.url" translatable="false">@string/org.opencontainers.image.url</string>
+    <string name="org.label_schema.vcs_url" translatable="false">@string/org.opencontainers.image.source</string>
+    <string name="org.label_schema.version" translatable="false">@string/org.opencontainers.image.version</string>
+    <string name="org.label_schema.vcs_ref" translatable="false">@string/org.opencontainers.image.revision</string>
+    <string name="org.label_schema.vendor" translatable="false">@string/org.opencontainers.image.vendor</string>
+    <string name="org.label_schema.name" translatable="false">@string/org.opencontainers.image.title</string>
+    <string name="org.label_schema.description" translatable="false">@string/org.opencontainers.image.description</string>
+    <string name="org.label_schema.usage" translatable="false">@string/org.opencontainers.image.documentation</string>
+</resources>

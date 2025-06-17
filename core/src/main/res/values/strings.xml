@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- https://github.com/opencontainers/image-spec/blob/main/annotations.md -->
+    <string name="org.opencontainers.image.created">Build Time</string>
+    <string name="org.opencontainers.image.authors">Authors</string>
+    <string name="org.opencontainers.image.url">Homepage</string>
+    <string name="org.opencontainers.image.documentation">Documentation</string>
+    <string name="org.opencontainers.image.source">Source Code</string>
+    <string name="org.opencontainers.image.version">Version</string>
+    <string name="org.opencontainers.image.revision">Revision</string>
+    <string name="org.opencontainers.image.vendor">Vendor</string>
+    <string name="org.opencontainers.image.licenses">Licenses</string>
+    <string name="org.opencontainers.image.ref.name">Reference</string>
+    <string name="org.opencontainers.image.title">Name</string>
+    <string name="org.opencontainers.image.description">Description</string>
+    <string name="org.opencontainers.image.base.digest">Base Image Digest</string>
+    <string name="org.opencontainers.image.base.name">Base Image</string>
+
+</resources>
