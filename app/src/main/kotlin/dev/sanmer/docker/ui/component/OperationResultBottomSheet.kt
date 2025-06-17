@@ -18,7 +18,7 @@ import dev.sanmer.docker.R
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.ui.ktx.bottom
 import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun OperationResultBottomSheet(
@@ -29,7 +29,7 @@ fun OperationResultBottomSheet(
 
     LaunchedEffect(data) {
         if (data.isSuccess) {
-            delay(1.seconds)
+            delay(500.milliseconds)
             onDismiss()
         }
     }
