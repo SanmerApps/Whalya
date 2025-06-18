@@ -62,7 +62,7 @@ interface Images {
         @Path("id") id: String,
         @Query("force") force: Boolean = false,
         @Query("noprune") noprune: Boolean = false
-    ): ImageRemoved
+    ): List<ImageRemoved>
 
     @GET("images/search")
     suspend fun search(
