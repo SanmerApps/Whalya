@@ -57,10 +57,10 @@ class ContainerViewModel @Inject constructor(
                 docker.containers.inspect(
                     id = container.id,
                     size = true
-                ).also {
-                    name = it.name.substring(1)
-                    state = it.state.status
-                }.let(::UiContainer)
+                ).let(::UiContainer).also {
+                    name = it.name
+                    state = it.state
+                }
             }.onFailure {
                 Timber.e(it)
             }.asLoadData()

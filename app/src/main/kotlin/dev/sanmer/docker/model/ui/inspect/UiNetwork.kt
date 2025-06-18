@@ -18,6 +18,9 @@ data class UiNetwork(
         }
     }
 
+    val name: String
+        inline get() = original.name
+
     val driver: String
         inline get() = original.driver
 

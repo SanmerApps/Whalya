@@ -53,9 +53,9 @@ class NetworkViewModel @Inject constructor(
                 docker.networks.inspect(
                     id = network.id,
                     scope = ""
-                ).also {
+                ).let(::UiNetwork).also {
                     name = it.name
-                }.let(::UiNetwork)
+                }
             }.onFailure {
                 Timber.e(it)
             }.asLoadData()

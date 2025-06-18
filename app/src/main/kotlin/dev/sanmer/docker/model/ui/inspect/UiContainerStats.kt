@@ -3,6 +3,7 @@ package dev.sanmer.docker.model.ui.inspect
 import dev.sanmer.core.docker.response.container.ContainerStats
 import dev.sanmer.docker.ktx.sizeByIEC
 import dev.sanmer.docker.ktx.sizeBySI
+import dev.sanmer.docker.model.ui.home.UiContainer.Default.name
 import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -14,7 +15,7 @@ data class UiContainerStats(
         inline get() = original.pidsStats.current
 
     val name by lazy {
-        original.name.substring(1)
+        original.name.name()
     }
 
     val readAt by lazy {
@@ -26,9 +27,10 @@ data class UiContainerStats(
     }
 
     val cpuPercent by lazy {
-        val cpuDelta =
-            original.cpuStats.cpuUsage.totalUsage - original.preCpuStats.cpuUsage.totalUsage
-        val systemDelta = original.cpuStats.systemCpuUsage - original.preCpuStats.systemCpuUsage
+        val cpuDelta = original.cpuStats.cpuUsage.totalUsage -
+                original.preCpuStats.cpuUsage.totalUsage
+        val systemDelta = original.cpuStats.systemCpuUsage -
+                original.preCpuStats.systemCpuUsage
         (cpuDelta / systemDelta.toFloat()) * original.cpuStats.onlineCpus
     }
 

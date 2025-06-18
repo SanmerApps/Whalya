@@ -3,10 +3,11 @@ package dev.sanmer.docker.model.ui.inspect
 import dev.sanmer.core.docker.Labels
 import dev.sanmer.core.docker.request.container.ContainerConfig
 import dev.sanmer.core.docker.request.container.HostConfig
+import dev.sanmer.core.docker.response.container.Container
 import dev.sanmer.core.docker.response.container.ContainerLowLevel
 import dev.sanmer.docker.ktx.copy
 import dev.sanmer.docker.ktx.sizeBySI
-import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
+import dev.sanmer.docker.model.ui.home.UiContainer.Default.name
 import dev.sanmer.docker.model.ui.home.UiImage.Default.digest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -37,6 +38,13 @@ data class UiContainer(
     val pid: Int
         inline get() = original.state.pid
 
+    val state: Container.State
+        inline get() = original.state.status
+
+    val name by lazy {
+        original.name.name()
+    }
+
     val command by lazy {
         original.path + original.args.joinToString(separator = " ", prefix = " ")
     }
@@ -60,7 +68,7 @@ data class UiContainer(
     }
 
     val image by lazy {
-        original.config.image.ifEmpty { imageId.shortId() }
+        original.config.image
     }
 
     val imageId by lazy {

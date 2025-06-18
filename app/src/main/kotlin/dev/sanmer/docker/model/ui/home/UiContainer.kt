@@ -17,7 +17,7 @@ data class UiContainer(
         inline get() = original.id
 
     val name by lazy {
-        original.names.firstOrNull()?.substring(1) ?: id.shortId()
+        original.names.firstOrNull()?.name() ?: id.shortId()
     }
 
     val exposedPorts by lazy {
@@ -45,6 +45,7 @@ data class UiContainer(
     }
 
     companion object Default {
+        fun String.name() = removePrefix("/")
         fun String.shortId() = substring(0, 12)
     }
 }
