@@ -52,6 +52,7 @@
     <string name="image_tags">Tags</string>
     <string name="image_digests">Digests</string>
     <string name="image_untagged">Untagged</string>
+    <string name="image_labels">Labels</string>
     <string name="image_layers">Layers</string>
 
     <!-- Networks -->

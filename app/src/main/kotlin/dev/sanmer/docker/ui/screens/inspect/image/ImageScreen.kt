@@ -2,6 +2,7 @@ package dev.sanmer.docker.ui.screens.inspect.image
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,11 +35,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,6 +51,7 @@ import androidx.navigation.NavController
 import dev.sanmer.core.docker.Labels
 import dev.sanmer.docker.R
 import dev.sanmer.docker.model.LoadData
+import dev.sanmer.docker.model.LoadData.Default.getValue
 import dev.sanmer.docker.model.ui.home.UiContainer
 import dev.sanmer.docker.model.ui.inspect.UiImage
 import dev.sanmer.docker.ui.component.AnimatedText
@@ -64,11 +68,13 @@ import dev.sanmer.docker.ui.component.WithIcon
 import dev.sanmer.docker.ui.ktx.bottom
 import dev.sanmer.docker.ui.ktx.navigatePopTo
 import dev.sanmer.docker.ui.ktx.plus
+import dev.sanmer.docker.ui.ktx.setText
 import dev.sanmer.docker.ui.ktx.surface
 import dev.sanmer.docker.ui.main.Screen
 import dev.sanmer.docker.viewmodel.ImageViewModel
 import dev.sanmer.docker.viewmodel.ImageViewModel.BottomSheet
 import dev.sanmer.docker.viewmodel.ImageViewModel.Operate
+import kotlinx.coroutines.launch
 
 @Composable
 fun ImageScreen(
@@ -87,6 +93,11 @@ fun ImageScreen(
 
     when (viewModel.bottomSheet) {
         BottomSheet.Closed -> {}
+        BottomSheet.Label -> LabelsBottomSheet(
+            onDismiss = { viewModel.update(BottomSheet.Closed) },
+            labels = viewModel.data.getValue(emptyList()) { it.labels }
+        )
+
         BottomSheet.Layer -> LayersBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
             histories = viewModel.histories
@@ -94,7 +105,7 @@ fun ImageScreen(
 
         BottomSheet.Operate -> OperationBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
-            enbaledPull = viewModel.name.isNotEmpty(),
+            enabledPull = viewModel.name.isNotEmpty(),
             onOperate = viewModel::operate
         )
 
@@ -123,6 +134,7 @@ fun ImageScreen(
                 navController = navController,
                 image = date.value,
                 containers = viewModel.containers,
+                onLabel = { viewModel.update(BottomSheet.Label) },
                 onLayer = { viewModel.update(BottomSheet.Layer) },
                 onOperate = { viewModel.update(BottomSheet.Operate) },
                 contentPadding = contentPadding,
@@ -142,6 +154,7 @@ private fun ImageContent(
     navController: NavController,
     image: UiImage,
     containers: List<UiContainer>,
+    onLabel: () -> Unit,
     onLayer: () -> Unit,
     onOperate: () -> Unit,
     contentPadding: PaddingValues,
@@ -158,6 +171,7 @@ private fun ImageContent(
         item {
             ImageCard(
                 image = image,
+                onLabel = onLabel,
                 onLayer = onLayer,
                 onOperate = onOperate
             )
@@ -170,18 +184,13 @@ private fun ImageContent(
                 navController.navigatePopTo(Screen.Container(container.id))
             }
         }
-
-        if (image.labels.isNotEmpty()) item {
-            LabelsCard(
-                image = image
-            )
-        }
     }
 }
 
 @Composable
 private fun ImageCard(
     image: UiImage,
+    onLabel: () -> Unit,
     onLayer: () -> Unit,
     onOperate: () -> Unit
 ) {
@@ -238,6 +247,8 @@ private fun ImageCard(
         }
 
         Buttons(
+            onLabel = onLabel,
+            enabledLabel = image.labels.isNotEmpty(),
             onLayer = onLayer,
             onOperate = onOperate,
             modifier = Modifier.align(Alignment.End)
@@ -247,6 +258,8 @@ private fun ImageCard(
 
 @Composable
 private fun Buttons(
+    onLabel: () -> Unit,
+    enabledLabel: Boolean,
     onLayer: () -> Unit,
     onOperate: () -> Unit,
     modifier: Modifier = Modifier
@@ -256,6 +269,17 @@ private fun Buttons(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        if (enabledLabel) {
+            FilledTonalIconButton(
+                onClick = onLabel
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.tag),
+                    contentDescription = null
+                )
+            }
+        }
+
         FilledTonalIconButton(
             onClick = onLayer
         ) {
@@ -324,11 +348,74 @@ private fun ContainerItem(
 }
 
 @Composable
+private fun LabelsBottomSheet(
+    onDismiss: () -> Unit,
+    labels: List<Pair<String, String>>
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = onDismiss,
+        shape = MaterialTheme.shapes.large.bottom(0.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.image_labels),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 20.dp)
+                .surface(
+                    shape = MaterialTheme.shapes.large,
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                    border = CardDefaults.outlinedCardBorder()
+                ),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(all = 20.dp)
+        ) {
+            items(labels) {
+                LabelItem(it)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LabelItem(
+    label: Pair<String, String>
+) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    val titleRes by remember { derivedStateOf { Labels(label.first) } }
+
+    ValueText(
+        title = titleRes?.let { stringResource(it) } ?: label.first,
+        value = label.second,
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {
+                    scope.launch {
+                        clipboard.setText(label.second)
+                    }
+                },
+                enabled = true,
+                interactionSource = null,
+                indication = null
+            )
+    )
+}
+
+@Composable
 private fun LayersBottomSheet(
     onDismiss: () -> Unit,
     histories: List<UiImage.History>
 ) {
-    if (histories.isEmpty()) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var index by remember { mutableIntStateOf(-1) }
@@ -352,6 +439,7 @@ private fun LayersBottomSheet(
 
         LazyColumn(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(all = 20.dp)
                 .surface(
                     shape = MaterialTheme.shapes.large,
@@ -438,51 +526,9 @@ private fun LayerItem(
 }
 
 @Composable
-private fun LabelsCard(
-    image: UiImage
-) {
-    val first by remember {
-        derivedStateOf { image.labels.first() }
-    }
-
-    val values by remember {
-        derivedStateOf { image.labels.drop(1) }
-    }
-
-    ValuesColumn {
-        WithIcon(
-            painter = painterResource(R.drawable.tag)
-        ) {
-            ValueText(
-                title = labelName(first.first),
-                value = first.second,
-                modifier = Modifier.weight(1f),
-                selectable = true
-            )
-        }
-
-        values.forEach { (name, value) ->
-            ValueText(
-                title = labelName(name),
-                value = value,
-                selectable = true
-            )
-        }
-    }
-}
-
-@Composable
-private fun labelName(
-    name: String
-): String {
-    val resId by remember { derivedStateOf { Labels(name) } }
-    return resId?.let { stringResource(it) } ?: name
-}
-
-@Composable
 private fun OperationBottomSheet(
     onDismiss: () -> Unit,
-    enbaledPull: Boolean,
+    enabledPull: Boolean,
     onOperate: (Operate) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -505,7 +551,7 @@ private fun OperationBottomSheet(
         ) {
             OperationButton(
                 onClick = { onOperate(Operate.Pull) },
-                enabled = enbaledPull,
+                enabled = enabledPull,
                 painter = painterResource(R.drawable.arrow_down_to_arc),
                 label = stringResource(R.string.operation_pull)
             )

@@ -165,6 +165,7 @@ class ImageViewModel @Inject constructor(
 
     enum class BottomSheet {
         Closed,
+        Label,
         Layer,
         Operate,
         Result
