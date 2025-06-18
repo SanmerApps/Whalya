@@ -39,6 +39,17 @@ interface Images {
         @Query("filters") filters: PruneBuilderCachesFilters
     ): BuilderCachePruned
 
+    @POST("images/create")
+    suspend fun create(
+        @Query("fromImage") fromImage: String,
+        @Query("fromSrc") fromSrc: String,
+        @Query("repo") repo: String,
+        @Query("tag") tag: String,
+        @Query("message") message: String,
+        @Query("changes") changes: List<String>,
+        @Query("platform") platform: String = ""
+    )
+
     @GET("images/{id}/json")
     suspend fun inspect(
         @Path("id") id: String
