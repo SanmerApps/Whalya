@@ -19,6 +19,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.create
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class Docker(
     private val baseUrl: String,
@@ -56,6 +57,7 @@ class Docker(
         private fun createOkHttpClient(
             header: Request.Builder.() -> Request.Builder = { this }
         ) = OkHttpClient.Builder()
+            .readTimeout(5, TimeUnit.MINUTES)
             .addInterceptor(
                 HttpLoggingInterceptor {
                     Log.d("Docker", it)

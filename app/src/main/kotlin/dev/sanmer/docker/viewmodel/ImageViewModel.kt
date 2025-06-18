@@ -81,12 +81,11 @@ class ImageViewModel @Inject constructor(
                     Operate.Pull -> {
                         val image = data.getOrThrow().original
                         val value = image.repoTags.firstOrNull().orEmpty()
-                        val (name, tag) = value.split(":", limit = 2)
                         docker.images.create(
-                            fromImage = name,
+                            fromImage = value,
                             fromSrc = "",
                             repo = "",
-                            tag = tag,
+                            tag = "",
                             message = "",
                             changes = emptyList()
                         )
