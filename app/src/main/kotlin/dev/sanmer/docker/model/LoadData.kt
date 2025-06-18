@@ -18,6 +18,13 @@ sealed class LoadData<out V> {
             }
         }
 
+        inline fun <V, R> Result<V>.asLoadData(transform: (V) -> R): LoadData<R> {
+            return when {
+                isSuccess -> Success(transform(getOrThrow()))
+                else -> Failure(requireNotNull(exceptionOrNull()))
+            }
+        }
+
         fun <V> LoadData<V>.getOrThrow(): V {
             return when (this) {
                 Pending -> throw IllegalStateException("Pending")
@@ -29,15 +36,6 @@ sealed class LoadData<out V> {
 
         inline fun <V, R> LoadData<V>.getValue(fallback: R, transform: (V) -> R): R {
             return (this as? Success)?.value?.let(transform) ?: fallback
-        }
-
-        inline fun <V, R> LoadData<V>.let(transform: (V) -> R): LoadData<R> {
-            return when (this) {
-                Pending -> Pending
-                Loading -> Loading
-                is Success<V> -> Success(transform(value))
-                is Failure -> this
-            }
         }
     }
 }

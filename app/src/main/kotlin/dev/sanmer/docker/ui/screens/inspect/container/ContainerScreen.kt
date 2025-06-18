@@ -21,6 +21,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -61,6 +62,14 @@ fun ContainerScreen(
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    DisposableEffect(viewModel.data) {
+        if (viewModel.data.isFailure && viewModel.result.isSuccess) {
+            viewModel.update(BottomSheet.Closed)
+            navController.navigateUp()
+        }
+        onDispose {}
+    }
 
     when (viewModel.bottomSheet) {
         BottomSheet.Closed -> {}
@@ -303,7 +312,7 @@ private fun ImageCard(
             painter = painterResource(R.drawable.circle_square)
         ) {
             ValueText(
-                title = container.image,
+                title = container.image.ifEmpty { stringResource(R.string.image_untagged) },
                 value = container.imageId,
                 modifier = Modifier.weight(1f)
             )

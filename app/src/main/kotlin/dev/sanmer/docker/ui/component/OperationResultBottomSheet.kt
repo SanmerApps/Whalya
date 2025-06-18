@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun OperationResultBottomSheet(
     onDismiss: () -> Unit,
-    data: LoadData<Unit>
+    data: LoadData<*>
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -44,7 +44,7 @@ fun OperationResultBottomSheet(
                 height = 200.dp
             )
 
-            is LoadData.Success<Unit> -> Box(
+            is LoadData.Success<*> -> Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
@@ -63,6 +63,5 @@ fun OperationResultBottomSheet(
                 height = 200.dp
             )
         }
-
     }
 }

@@ -20,6 +20,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -47,6 +48,7 @@ import dev.sanmer.docker.ui.ktx.plus
 import dev.sanmer.docker.ui.main.Screen
 import dev.sanmer.docker.viewmodel.NetworkViewModel
 import dev.sanmer.docker.viewmodel.NetworkViewModel.BottomSheet
+import dev.sanmer.docker.viewmodel.NetworkViewModel.Operate
 
 @Composable
 fun NetworkScreen(
@@ -55,11 +57,19 @@ fun NetworkScreen(
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
+    DisposableEffect(viewModel.data) {
+        if (viewModel.data.isFailure && viewModel.result.isSuccess) {
+            viewModel.update(BottomSheet.Closed)
+            navController.navigateUp()
+        }
+        onDispose {}
+    }
+
     when (viewModel.bottomSheet) {
         BottomSheet.Closed -> {}
         BottomSheet.Operate -> OperationBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
-            onRemove = viewModel::remove
+            onOperate = viewModel::operate
         )
 
         BottomSheet.Result -> OperationResultBottomSheet(
@@ -265,7 +275,7 @@ private fun ContainerItem(
 @Composable
 private fun OperationBottomSheet(
     onDismiss: () -> Unit,
-    onRemove: () -> Unit
+    onOperate: (Operate) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -286,7 +296,7 @@ private fun OperationBottomSheet(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             OperationButton(
-                onClick = onRemove,
+                onClick = { onOperate(Operate.Remove) },
                 painter = painterResource(R.drawable.trash),
                 label = stringResource(R.string.operation_remove)
             )

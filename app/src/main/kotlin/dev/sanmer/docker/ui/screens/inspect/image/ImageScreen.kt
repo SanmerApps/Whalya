@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -67,6 +68,7 @@ import dev.sanmer.docker.ui.ktx.surface
 import dev.sanmer.docker.ui.main.Screen
 import dev.sanmer.docker.viewmodel.ImageViewModel
 import dev.sanmer.docker.viewmodel.ImageViewModel.BottomSheet
+import dev.sanmer.docker.viewmodel.ImageViewModel.Operate
 
 @Composable
 fun ImageScreen(
@@ -74,6 +76,14 @@ fun ImageScreen(
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    DisposableEffect(viewModel.data) {
+        if (viewModel.data.isFailure && viewModel.result.isSuccess) {
+            viewModel.update(BottomSheet.Closed)
+            navController.navigateUp()
+        }
+        onDispose {}
+    }
 
     when (viewModel.bottomSheet) {
         BottomSheet.Closed -> {}
@@ -84,7 +94,7 @@ fun ImageScreen(
 
         BottomSheet.Operate -> OperationBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
-            onRemove = viewModel::remove
+            onOperate = viewModel::operate
         )
 
         BottomSheet.Result -> OperationResultBottomSheet(
@@ -471,7 +481,7 @@ private fun labelName(
 @Composable
 private fun OperationBottomSheet(
     onDismiss: () -> Unit,
-    onRemove: () -> Unit
+    onOperate: (Operate) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -492,7 +502,7 @@ private fun OperationBottomSheet(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             OperationButton(
-                onClick = onRemove,
+                onClick = { onOperate(Operate.Remove) },
                 painter = painterResource(R.drawable.trash),
                 label = stringResource(R.string.operation_remove)
             )

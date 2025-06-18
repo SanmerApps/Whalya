@@ -19,7 +19,6 @@ import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
 import dev.sanmer.docker.model.ui.inspect.UiImage
 import dev.sanmer.docker.repository.DockerRepository
 import dev.sanmer.docker.ui.main.Screen
-import dev.sanmer.docker.viewmodel.VolumeViewModel.BottomSheet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -49,13 +48,14 @@ class ImageViewModel @Inject constructor(
     var bottomSheet by mutableStateOf(BottomSheet.Closed)
         private set
 
-    var result by mutableStateOf<LoadData<Unit>>(LoadData.Loading)
+    var result by mutableStateOf<LoadData<Operate>>(LoadData.Loading)
         private set
 
     init {
         Timber.d("ImageViewModel init")
         loadData()
-        dbObserver()
+        dataObserver()
+        resultObserver()
     }
 
     fun loadData() {
@@ -72,18 +72,20 @@ class ImageViewModel @Inject constructor(
         }
     }
 
-    fun remove() {
+    fun operate(operate: Operate) {
         viewModelScope.launch {
             bottomSheet = BottomSheet.Result
             result = runCatching {
-                docker.images.remove(
-                    id = image.id,
-                    force = false,
-                    noprune = false
-                ).let {}
+                when (operate) {
+                    Operate.Remove -> docker.images.remove(
+                        id = image.id,
+                        force = false,
+                        noprune = false
+                    )
+                }
             }.onFailure {
                 Timber.e(it)
-            }.asLoadData()
+            }.asLoadData { operate }
         }
     }
 
@@ -94,7 +96,7 @@ class ImageViewModel @Inject constructor(
         }
     }
 
-    private fun dbObserver() {
+    private fun dataObserver() {
         viewModelScope.launch {
             snapshotFlow { data }
                 .filterIsInstance<LoadData.Success<UiImage>>()
@@ -137,10 +139,24 @@ class ImageViewModel @Inject constructor(
         }
     }
 
+    private fun resultObserver() {
+        viewModelScope.launch {
+            snapshotFlow { result }
+                .filterIsInstance<LoadData.Success<*>>()
+                .collectLatest {
+                    loadData()
+                }
+        }
+    }
+
     enum class BottomSheet {
         Closed,
         Layer,
         Operate,
         Result
+    }
+
+    enum class Operate {
+        Remove
     }
 }

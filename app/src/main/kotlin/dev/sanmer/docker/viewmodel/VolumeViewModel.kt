@@ -42,13 +42,14 @@ class VolumeViewModel @Inject constructor(
     var bottomSheet by mutableStateOf(BottomSheet.Closed)
         private set
 
-    var result by mutableStateOf<LoadData<Unit>>(LoadData.Loading)
+    var result by mutableStateOf<LoadData<Operate>>(LoadData.Loading)
         private set
 
     init {
         Timber.d("VolumeViewModel init")
         loadData()
         dataObserver()
+        resultObserver()
     }
 
     fun loadData() {
@@ -63,17 +64,19 @@ class VolumeViewModel @Inject constructor(
         }
     }
 
-    fun remove() {
+    fun operate(operate: Operate) {
         viewModelScope.launch {
             bottomSheet = BottomSheet.Result
             result = runCatching {
-                docker.volumes.remove(
-                    name = volume.name,
-                    force = false
-                )
+                when (operate) {
+                    Operate.Remove -> docker.volumes.remove(
+                        name = volume.name,
+                        force = false
+                    )
+                }
             }.onFailure {
                 Timber.e(it)
-            }.asLoadData()
+            }.asLoadData { operate }
         }
     }
 
@@ -109,9 +112,23 @@ class VolumeViewModel @Inject constructor(
         }
     }
 
+    private fun resultObserver() {
+        viewModelScope.launch {
+            snapshotFlow { result }
+                .filterIsInstance<LoadData.Success<*>>()
+                .collectLatest {
+                    loadData()
+                }
+        }
+    }
+
     enum class BottomSheet {
         Closed,
         Operate,
         Result
+    }
+
+    enum class Operate {
+        Remove
     }
 }

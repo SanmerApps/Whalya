@@ -12,11 +12,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.core.docker.response.container.Container
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
-import dev.sanmer.docker.model.ui.inspect.UiContainer
 import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
+import dev.sanmer.docker.model.ui.inspect.UiContainer
 import dev.sanmer.docker.repository.DockerRepository
 import dev.sanmer.docker.ui.main.Screen
-import dev.sanmer.docker.viewmodel.VolumeViewModel.BottomSheet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -43,7 +42,7 @@ class ContainerViewModel @Inject constructor(
     var bottomSheet by mutableStateOf(BottomSheet.Closed)
         private set
 
-    var result by mutableStateOf<LoadData<Unit>>(LoadData.Loading)
+    var result by mutableStateOf<LoadData<Operate>>(LoadData.Loading)
         private set
 
     init {
@@ -105,7 +104,7 @@ class ContainerViewModel @Inject constructor(
                 }
             }.onFailure {
                 Timber.e(it)
-            }.asLoadData()
+            }.asLoadData { operate }
         }
     }
 
@@ -119,7 +118,7 @@ class ContainerViewModel @Inject constructor(
     private fun resultObserver() {
         viewModelScope.launch {
             snapshotFlow { result }
-                .filterIsInstance<LoadData.Success<Unit>>()
+                .filterIsInstance<LoadData.Success<*>>()
                 .collectLatest {
                     loadData()
                 }

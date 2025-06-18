@@ -3,6 +3,7 @@ package dev.sanmer.docker.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,8 @@ import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
 import dev.sanmer.docker.model.ui.inspect.UiNetwork
 import dev.sanmer.docker.repository.DockerRepository
 import dev.sanmer.docker.ui.main.Screen
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -35,12 +38,13 @@ class NetworkViewModel @Inject constructor(
     var bottomSheet by mutableStateOf(BottomSheet.Closed)
         private set
 
-    var result by mutableStateOf<LoadData<Unit>>(LoadData.Loading)
+    var result by mutableStateOf<LoadData<Operate>>(LoadData.Loading)
         private set
 
     init {
         Timber.d("NetworkViewModel init")
         loadData()
+        resultObserver()
     }
 
     fun loadData() {
@@ -58,16 +62,18 @@ class NetworkViewModel @Inject constructor(
         }
     }
 
-    fun remove() {
+    fun operate(operate: Operate) {
         viewModelScope.launch {
             bottomSheet = BottomSheet.Result
             result = runCatching {
-                docker.networks.remove(
-                    id = network.id
-                )
+                when (operate) {
+                    Operate.Remove -> docker.networks.remove(
+                        id = network.id
+                    )
+                }
             }.onFailure {
                 Timber.e(it)
-            }.asLoadData()
+            }.asLoadData { operate }
         }
     }
 
@@ -78,9 +84,23 @@ class NetworkViewModel @Inject constructor(
         }
     }
 
+    private fun resultObserver() {
+        viewModelScope.launch {
+            snapshotFlow { result }
+                .filterIsInstance<LoadData.Success<*>>()
+                .collectLatest {
+                    loadData()
+                }
+        }
+    }
+
     enum class BottomSheet {
         Closed,
         Operate,
         Result
+    }
+
+    enum class Operate {
+        Remove
     }
 }
