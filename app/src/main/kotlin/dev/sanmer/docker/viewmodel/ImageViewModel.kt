@@ -14,6 +14,7 @@ import dev.sanmer.core.docker.query.image.OCIPlatform
 import dev.sanmer.core.docker.response.image.ImageLowLevel
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
+import dev.sanmer.docker.model.LoadData.Default.getOrThrow
 import dev.sanmer.docker.model.ui.home.UiContainer
 import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
 import dev.sanmer.docker.model.ui.inspect.UiImage
@@ -77,6 +78,20 @@ class ImageViewModel @Inject constructor(
             bottomSheet = BottomSheet.Result
             result = runCatching {
                 when (operate) {
+                    Operate.Pull -> {
+                        val image = data.getOrThrow().original
+                        val value = image.repoTags.firstOrNull().orEmpty()
+                        val (name, tag) = value.split(":", limit = 2)
+                        docker.images.create(
+                            fromImage = name,
+                            fromSrc = "",
+                            repo = "",
+                            tag = tag,
+                            message = "",
+                            changes = emptyList()
+                        )
+                    }
+
                     Operate.Remove -> docker.images.remove(
                         id = image.id,
                         force = false,
@@ -157,6 +172,7 @@ class ImageViewModel @Inject constructor(
     }
 
     enum class Operate {
+        Pull,
         Remove
     }
 }

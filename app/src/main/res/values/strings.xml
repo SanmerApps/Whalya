@@ -90,6 +90,7 @@
     <string name="operation_restart">Restart</string>
     <string name="operation_pause">Pause</string>
     <string name="operation_unpause">Unpause</string>
+    <string name="operation_pull">Pull</string>
     <string name="operation_remove">Remove</string>
 
 </resources>

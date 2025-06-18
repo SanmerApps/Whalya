@@ -94,6 +94,7 @@ fun ImageScreen(
 
         BottomSheet.Operate -> OperationBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
+            enbaledPull = viewModel.name.isNotEmpty(),
             onOperate = viewModel::operate
         )
 
@@ -481,6 +482,7 @@ private fun labelName(
 @Composable
 private fun OperationBottomSheet(
     onDismiss: () -> Unit,
+    enbaledPull: Boolean,
     onOperate: (Operate) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -501,6 +503,13 @@ private fun OperationBottomSheet(
             horizontalArrangement = Arrangement.spacedBy(40.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            OperationButton(
+                onClick = { onOperate(Operate.Pull) },
+                enabled = enbaledPull,
+                painter = painterResource(R.drawable.arrow_down_to_arc),
+                label = stringResource(R.string.operation_pull)
+            )
+
             OperationButton(
                 onClick = { onOperate(Operate.Remove) },
                 painter = painterResource(R.drawable.trash),
