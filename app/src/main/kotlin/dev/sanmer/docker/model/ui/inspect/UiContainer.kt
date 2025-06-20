@@ -1,10 +1,10 @@
 package dev.sanmer.docker.model.ui.inspect
 
-import dev.sanmer.core.docker.Labels
-import dev.sanmer.core.docker.request.container.ContainerConfig
-import dev.sanmer.core.docker.request.container.HostConfig
-import dev.sanmer.core.docker.response.container.Container
-import dev.sanmer.core.docker.response.container.ContainerLowLevel
+import dev.sanmer.core.Labels
+import dev.sanmer.core.request.container.ContainerConfig
+import dev.sanmer.core.request.container.HostConfig
+import dev.sanmer.core.response.container.Container
+import dev.sanmer.core.response.container.ContainerLowLevel
 import dev.sanmer.docker.ktx.copy
 import dev.sanmer.docker.ktx.sizeBySI
 import dev.sanmer.docker.model.ui.home.UiContainer.Default.name
@@ -51,7 +51,7 @@ data class UiContainer(
 
     val restartPolicy by lazy {
         with(original.hostConfig.restartPolicy) {
-            if (name == HostConfig.RestartPolicy.Name.OnFailure) {
+            if (name == dev.sanmer.core.request.container.HostConfig.RestartPolicy.Name.OnFailure) {
                 "$name (${maximumRetryCount})"
             } else {
                 "$name"
@@ -60,8 +60,8 @@ data class UiContainer(
     }
 
     val ports by lazy {
-        original.networkSettings.ports.ports.mapNotNull {
-            it.value.firstOrNull()?.hostPort?.let { port ->
+        original.networkSettings.ports.mapNotNull {
+            it.value?.first()?.hostPort?.let { port ->
                 "${port}:${it.key}"
             }
         }

@@ -1,7 +1,7 @@
 package dev.sanmer.docker.model.ui.home
 
-import dev.sanmer.core.docker.response.system.SystemInfo
-import dev.sanmer.core.docker.response.system.SystemVersion
+import dev.sanmer.core.response.system.SystemInfo
+import dev.sanmer.core.response.system.SystemVersion
 import dev.sanmer.docker.ktx.copy
 import dev.sanmer.docker.ktx.sizeByIEC
 import kotlinx.datetime.TimeZone

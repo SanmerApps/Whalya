@@ -9,12 +9,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.core.Docker.delete
+import dev.sanmer.core.Docker.get
+import dev.sanmer.core.resource.Networks
+import dev.sanmer.core.response.network.Network
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
 import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
 import dev.sanmer.docker.model.ui.inspect.UiNetwork
-import dev.sanmer.docker.repository.DockerRepository
+import dev.sanmer.docker.repository.ClientRepository
 import dev.sanmer.docker.ui.main.Screen
+import io.ktor.client.call.body
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -23,11 +28,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NetworkViewModel @Inject constructor(
-    private val dockerRepository: DockerRepository,
+    private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val network = savedStateHandle.toRoute<Screen.Network>()
-    private val docker by lazy { dockerRepository.currentDocker() }
+    private val client by lazy { clientRepository.current() }
 
     var name by mutableStateOf(network.id.shortId())
         private set
@@ -50,10 +55,9 @@ class NetworkViewModel @Inject constructor(
     fun loadData() {
         viewModelScope.launch {
             data = runCatching {
-                docker.networks.inspect(
-                    id = network.id,
-                    scope = ""
-                ).let(::UiNetwork).also {
+                client.get(
+                    Networks.Inspect(id = network.id)
+                ).body<Network>().let(::UiNetwork).also {
                     name = it.name
                 }
             }.onFailure {
@@ -67,8 +71,8 @@ class NetworkViewModel @Inject constructor(
             bottomSheet = BottomSheet.Result
             result = runCatching {
                 when (operate) {
-                    Operate.Remove -> docker.networks.remove(
-                        id = network.id
+                    Operate.Remove -> client.delete(
+                        Networks.Remove(id = network.id)
                     )
                 }
             }.onFailure {

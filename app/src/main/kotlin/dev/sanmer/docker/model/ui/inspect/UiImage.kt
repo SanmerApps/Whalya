@@ -1,8 +1,8 @@
 package dev.sanmer.docker.model.ui.inspect
 
-import dev.sanmer.core.docker.Labels
-import dev.sanmer.core.docker.response.image.ImageHistory
-import dev.sanmer.core.docker.response.image.ImageLowLevel
+import dev.sanmer.core.Labels
+import dev.sanmer.core.response.image.ImageHistory
+import dev.sanmer.core.response.image.ImageLowLevel
 import dev.sanmer.docker.ktx.copy
 import dev.sanmer.docker.ktx.sizeBySI
 import kotlinx.datetime.Instant

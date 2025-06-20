@@ -8,12 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.docker.query.container.LogsContainerTail
-import dev.sanmer.core.docker.response.container.ContainerLog
+import dev.sanmer.core.Docker.get
+import dev.sanmer.core.resource.Containers
+import dev.sanmer.core.response.container.ContainerLog
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
-import dev.sanmer.docker.repository.DockerRepository
+import dev.sanmer.docker.repository.ClientRepository
 import dev.sanmer.docker.ui.main.Screen
+import io.ktor.client.call.body
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -23,11 +25,11 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ContainerLogsViewModel @Inject constructor(
-    private val dockerRepository: DockerRepository,
+    private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val containerLogs = savedStateHandle.toRoute<Screen.ContainerLogs>()
-    private val docker by lazy { dockerRepository.currentDocker() }
+    private val client by lazy { clientRepository.current() }
 
     var data by mutableStateOf<LoadData<List<ContainerLog>>>(LoadData.Loading)
         private set
@@ -44,12 +46,14 @@ class ContainerLogsViewModel @Inject constructor(
         viewModelScope.launch {
             while (isActive && isRunning) {
                 data = runCatching {
-                    docker.containers.logs(
-                        id = containerLogs.id,
-                        stdout = true,
-                        stderr = true,
-                        tail = LogsContainerTail.Number(1000)
-                    ).asReversed()
+                    client.get(
+                        Containers.Logs(
+                            id = containerLogs.id,
+                            follow = false,
+                            stdout = true,
+                            stderr = true
+                        )
+                    ).body<List<ContainerLog>>().asReversed()
                 }.onFailure {
                     isRunning = false
                     Timber.e(it)
@@ -62,6 +66,8 @@ class ContainerLogsViewModel @Inject constructor(
 
     fun update(block: (Boolean) -> Boolean) {
         isRunning = block(isRunning)
-        loadData()
+        if (isRunning) {
+            loadData()
+        }
     }
 }

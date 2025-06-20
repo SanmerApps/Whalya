@@ -56,8 +56,8 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build dependencies
-        working-directory: core/src/main/jni
+      - name: Build pki-types
+        working-directory: pki-types/src/main/jni
         run: sh build_jni.sh
 
       - name: Build with Gradle

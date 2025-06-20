@@ -9,17 +9,25 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.docker.query.container.ListContainersFilters
-import dev.sanmer.core.docker.query.image.OCIPlatform
-import dev.sanmer.core.docker.response.image.ImageLowLevel
+import dev.sanmer.core.Docker.delete
+import dev.sanmer.core.Docker.get
+import dev.sanmer.core.Docker.post
+import dev.sanmer.core.JsonCompat.encodeJson
+import dev.sanmer.core.request.image.OCIPlatform
+import dev.sanmer.core.resource.Containers
+import dev.sanmer.core.resource.Images
+import dev.sanmer.core.response.container.Container
+import dev.sanmer.core.response.image.ImageHistory
+import dev.sanmer.core.response.image.ImageLowLevel
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
 import dev.sanmer.docker.model.LoadData.Default.getOrThrow
 import dev.sanmer.docker.model.ui.home.UiContainer
 import dev.sanmer.docker.model.ui.home.UiContainer.Default.shortId
 import dev.sanmer.docker.model.ui.inspect.UiImage
-import dev.sanmer.docker.repository.DockerRepository
+import dev.sanmer.docker.repository.ClientRepository
 import dev.sanmer.docker.ui.main.Screen
+import io.ktor.client.call.body
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -28,11 +36,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ImageViewModel @Inject constructor(
-    private val dockerRepository: DockerRepository,
+    private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val image = savedStateHandle.toRoute<Screen.Image>()
-    private val docker by lazy { dockerRepository.currentDocker() }
+    private val client by lazy { clientRepository.current() }
 
     var name by mutableStateOf(image.id.shortId())
         private set
@@ -62,9 +70,9 @@ class ImageViewModel @Inject constructor(
     fun loadData() {
         viewModelScope.launch {
             data = runCatching {
-                docker.images.inspect(
-                    id = image.id
-                ).let(::UiImage).also {
+                client.get(
+                    Images.Inspect(id = image.id)
+                ).body<ImageLowLevel>().let(::UiImage).also {
                     name = it.name
                 }
             }.onFailure {
@@ -80,21 +88,13 @@ class ImageViewModel @Inject constructor(
                 when (operate) {
                     Operate.Pull -> {
                         val image = data.getOrThrow().original
-                        val value = image.repoTags.firstOrNull().orEmpty()
-                        docker.images.create(
-                            fromImage = value,
-                            fromSrc = "",
-                            repo = "",
-                            tag = "",
-                            message = "",
-                            changes = emptyList()
+                        client.post(
+                            Images.Create(fromImage = image.repoTags.first())
                         )
                     }
 
-                    Operate.Remove -> docker.images.remove(
-                        id = image.id,
-                        force = false,
-                        noprune = false
+                    Operate.Remove -> client.delete(
+                        Images.Remove(id = image.id)
                     )
                 }
             }.onFailure {
@@ -124,12 +124,14 @@ class ImageViewModel @Inject constructor(
     private fun loadContainers(image: ImageLowLevel) {
         viewModelScope.launch {
             runCatching {
-                containers = docker.containers.list(
-                    limit = -1,
-                    filters = ListContainersFilters(
-                        ancestor = listOf(image.id)
+                containers = client.get(
+                    Containers.All(
+                        filters = Containers.All.Filters(
+                            ancestor = listOf(image.id)
+                        ).encodeJson()
                     )
-                ).map(::UiContainer)
+                ).body<List<Container>>()
+                    .map(::UiContainer)
             }.onFailure {
                 Timber.e(it)
             }
@@ -139,14 +141,16 @@ class ImageViewModel @Inject constructor(
     private fun loadHistories(image: ImageLowLevel) {
         viewModelScope.launch {
             runCatching {
-                histories = docker.images.history(
-                    id = image.id,
-                    platform = OCIPlatform(
-                        architecture = image.architecture,
-                        os = image.os,
-                        variant = image.variant
+                histories = client.get(
+                    Images.History(
+                        id = image.id,
+                        platform = OCIPlatform(
+                            architecture = image.architecture,
+                            os = image.os,
+                            variant = image.variant
+                        ).encodeJson()
                     )
-                ).map(UiImage::History).asReversed()
+                ).body<List<ImageHistory>>().map(UiImage::History).asReversed()
             }.onFailure {
                 Timber.e(it)
             }

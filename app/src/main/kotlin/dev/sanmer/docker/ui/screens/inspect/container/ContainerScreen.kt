@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import dev.sanmer.core.docker.response.container.Container
+import dev.sanmer.core.response.container.Container
 import dev.sanmer.docker.R
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.ui.inspect.UiContainer

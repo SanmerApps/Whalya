@@ -5,25 +5,20 @@ plugins {
 
 android {
     namespace = "dev.sanmer.core"
-
-    defaultConfig {
-        ndk.abiFilters += listOf("arm64-v8a", "x86_64")
-
-        consumerProguardFile("proguard-rules.pro")
-    }
-
-    sourceSets.all {
-        jniLibs.srcDir("src/main/libs")
-    }
 }
 
 dependencies {
+    implementation(projects.pkiTypes)
+
     implementation(libs.androidx.annotation)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.square.retrofit)
-    implementation(libs.square.retrofit.serialization)
-    implementation(libs.square.okhttp)
-    implementation(libs.square.okhttp.logging)
+
+    api(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.resources)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.json)
 }
