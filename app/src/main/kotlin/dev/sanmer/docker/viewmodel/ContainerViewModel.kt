@@ -22,6 +22,7 @@ import dev.sanmer.docker.model.ui.inspect.UiContainer
 import dev.sanmer.docker.repository.ClientRepository
 import dev.sanmer.docker.ui.main.Screen
 import io.ktor.client.call.body
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -48,13 +49,16 @@ class ContainerViewModel @Inject constructor(
     var bottomSheet by mutableStateOf(BottomSheet.Closed)
         private set
 
-    var result by mutableStateOf<LoadData<Operate>>(LoadData.Loading)
+    var result by mutableStateOf<LoadData<Operate>>(LoadData.Pending)
         private set
+
+    private var job = SupervisorJob()
 
     init {
         Timber.d("ContainerViewModel init")
         loadData()
         resultObserver()
+        addCloseable { job.cancel() }
     }
 
     fun loadData() {
@@ -76,8 +80,10 @@ class ContainerViewModel @Inject constructor(
     }
 
     fun operate(operate: Operate) {
-        viewModelScope.launch {
+        job = SupervisorJob()
+        viewModelScope.launch(job) {
             bottomSheet = BottomSheet.Result
+            result = LoadData.Loading
             result = runCatching {
                 when (operate) {
                     Operate.Stop -> client.post(
@@ -111,9 +117,11 @@ class ContainerViewModel @Inject constructor(
     }
 
     fun update(value: BottomSheet) {
+        val preValue = bottomSheet
         bottomSheet = value
-        if (bottomSheet == BottomSheet.Operate) {
+        if (preValue == BottomSheet.Result) {
             result = LoadData.Pending
+            job.cancel()
         }
     }
 
