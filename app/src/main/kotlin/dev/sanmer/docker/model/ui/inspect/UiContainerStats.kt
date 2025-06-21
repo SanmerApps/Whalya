@@ -1,6 +1,6 @@
 package dev.sanmer.docker.model.ui.inspect
 
-import dev.sanmer.core.docker.response.container.ContainerStats
+import dev.sanmer.core.response.container.ContainerStats
 import dev.sanmer.docker.ktx.sizeByIEC
 import dev.sanmer.docker.ktx.sizeBySI
 import dev.sanmer.docker.model.ui.home.UiContainer.Default.name

@@ -9,17 +9,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.Auth
-import dev.sanmer.core.docker.response.system.SystemVersion
+import dev.sanmer.core.Docker
+import dev.sanmer.core.Docker.get
+import dev.sanmer.core.resource.System
+import dev.sanmer.core.response.system.SystemVersion
 import dev.sanmer.docker.Const
 import dev.sanmer.docker.R
 import dev.sanmer.docker.database.entity.ServerEntity
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
 import dev.sanmer.docker.model.LoadData.Default.getOrThrow
+import dev.sanmer.docker.repository.ClientRepository
 import dev.sanmer.docker.repository.DbRepository
-import dev.sanmer.docker.repository.DockerRepository
 import dev.sanmer.docker.ui.main.Screen
+import io.ktor.client.call.body
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -27,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddServerViewModel @Inject constructor(
     private val dbRepository: DbRepository,
-    private val dockerRepository: DockerRepository,
+    private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val addServer = savedStateHandle.toRoute<Screen.AddServer>()
@@ -74,14 +77,14 @@ class AddServerViewModel @Inject constructor(
         viewModelScope.launch {
             control = Control.Connecting
             data = runCatching {
-                dockerRepository.new(
+                Docker.client(
                     baseUrl = input.apiEndpoint,
-                    auth = Auth.MutualTLS(
+                    mTLS = Docker.MutualTLS(
                         caCert = input.caCert,
                         clientCert = input.clientCert,
                         clientKey = input.clientKey
                     )
-                ).system.version()
+                ).get(System.Version()).body<SystemVersion>()
             }.onSuccess {
                 control = Control.Connected
             }.onFailure {
@@ -122,7 +125,7 @@ class AddServerViewModel @Inject constructor(
     fun delete() {
         viewModelScope.launch {
             runCatching {
-                dockerRepository.drop(addServer.id)
+                clientRepository.drop(addServer.id)
                 dbRepository.deleteServerById(addServer.id)
             }.onSuccess {
                 control = Control.Saved

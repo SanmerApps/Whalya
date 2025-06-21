@@ -19,4 +19,4 @@ pluginManagement {
 }
 
 rootProject.name = "Docker"
-include(":core", ":stub", ":app")
+include(":pki-types", ":core", ":stub", ":app")

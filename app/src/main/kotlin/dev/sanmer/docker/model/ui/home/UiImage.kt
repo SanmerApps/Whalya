@@ -1,7 +1,7 @@
 package dev.sanmer.docker.model.ui.home
 
-import dev.sanmer.core.docker.Labels
-import dev.sanmer.core.docker.response.image.Image
+import dev.sanmer.core.Labels
+import dev.sanmer.core.response.image.Image
 import dev.sanmer.docker.ktx.sizeBySI
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone

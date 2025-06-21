@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.core.JsonCompat.encodeJson
-import dev.sanmer.core.docker.response.system.SystemVersion
+import dev.sanmer.core.response.system.SystemVersion
 import dev.sanmer.docker.Const
 import dev.sanmer.docker.R
 import dev.sanmer.docker.model.LoadData

@@ -1,7 +1,7 @@
 package dev.sanmer.docker.model.ui.home
 
-import dev.sanmer.core.docker.Labels
-import dev.sanmer.core.docker.response.network.Network
+import dev.sanmer.core.Labels
+import dev.sanmer.core.response.network.Network
 import dev.sanmer.docker.ktx.copy
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

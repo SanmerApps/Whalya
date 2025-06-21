@@ -28,7 +28,7 @@ object JsonCompat : StringFormat {
         return default.encodeToString(serializer, value)
     }
 
-    inline fun <reified T> T.encodeJson(pretty: Boolean) = if (pretty) {
+    inline fun <reified T> T.encodeJson(pretty: Boolean = false) = if (pretty) {
         printer.encodeToString(this)
     } else {
         default.encodeToString(this)

@@ -9,14 +9,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.docker.query.container.ListContainersFilters
-import dev.sanmer.core.docker.response.volume.Volume
+import dev.sanmer.core.Docker.delete
+import dev.sanmer.core.Docker.get
+import dev.sanmer.core.JsonCompat.encodeJson
+import dev.sanmer.core.resource.Containers
+import dev.sanmer.core.resource.Volumes
+import dev.sanmer.core.response.container.Container
+import dev.sanmer.core.response.volume.Volume
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
 import dev.sanmer.docker.model.ui.home.UiContainer
 import dev.sanmer.docker.model.ui.inspect.UiVolume
-import dev.sanmer.docker.repository.DockerRepository
+import dev.sanmer.docker.repository.ClientRepository
 import dev.sanmer.docker.ui.main.Screen
+import io.ktor.client.call.body
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -25,11 +31,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VolumeViewModel @Inject constructor(
-    private val dockerRepository: DockerRepository,
+    private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val volume = savedStateHandle.toRoute<Screen.Volume>()
-    private val docker by lazy { dockerRepository.currentDocker() }
+    private val client by lazy { clientRepository.current() }
 
     val name get() = volume.name
 
@@ -55,9 +61,9 @@ class VolumeViewModel @Inject constructor(
     fun loadData() {
         viewModelScope.launch {
             data = runCatching {
-                docker.volumes.inspect(
-                    name = volume.name
-                ).let(::UiVolume)
+                client.get(
+                    Volumes.Inspect(name = volume.name)
+                ).body<Volume>().let(::UiVolume)
             }.onFailure {
                 Timber.e(it)
             }.asLoadData()
@@ -69,9 +75,8 @@ class VolumeViewModel @Inject constructor(
             bottomSheet = BottomSheet.Result
             result = runCatching {
                 when (operate) {
-                    Operate.Remove -> docker.volumes.remove(
-                        name = volume.name,
-                        force = false
+                    Operate.Remove -> client.delete(
+                        Volumes.Remove(name = volume.name)
                     )
                 }
             }.onFailure {
@@ -100,12 +105,14 @@ class VolumeViewModel @Inject constructor(
     private fun loadContainers(volume: Volume) {
         viewModelScope.launch {
             runCatching {
-                containers = docker.containers.list(
-                    limit = -1,
-                    filters = ListContainersFilters(
-                        volume = listOf(volume.name)
+                containers = client.get(
+                    Containers.All(
+                        filters = Containers.All.Filters(
+                            volume = listOf(volume.name)
+                        ).encodeJson()
                     )
-                ).map(::UiContainer)
+                ).body<List<Container>>()
+                    .map(::UiContainer)
             }.onFailure {
                 Timber.e(it)
             }
