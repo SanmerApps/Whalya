@@ -14,6 +14,8 @@
 
     <!--Settings -->
     <string name="setting_title">Settings</string>
+    <string name="setting_version">Version</string>
+    <string name="setting_build_info">Build Info</string>
 
     <!-- Home -->
     <string name="home_system">System</string>
