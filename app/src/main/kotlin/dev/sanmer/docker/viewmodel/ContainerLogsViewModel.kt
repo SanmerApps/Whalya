@@ -13,10 +13,13 @@ import dev.sanmer.core.resource.Containers
 import dev.sanmer.core.response.container.ContainerLog
 import dev.sanmer.docker.model.LoadData
 import dev.sanmer.docker.model.LoadData.Default.asLoadData
+import dev.sanmer.docker.model.LoadData.Default.getValue
 import dev.sanmer.docker.repository.ClientRepository
 import dev.sanmer.docker.ui.main.Screen
 import io.ktor.client.call.body
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -37,9 +40,38 @@ class ContainerLogsViewModel @Inject constructor(
     var isRunning by mutableStateOf(true)
         private set
 
+    var isSearch by mutableStateOf(false)
+        private set
+
+    private var cache = emptyList<ContainerLog>()
+    private val keyFlow = MutableStateFlow("")
+
     init {
         Timber.d("ContainerLogsViewModel init")
         loadData()
+        keyObserver()
+    }
+
+    fun toggleRunning() {
+        isRunning = !isRunning && !isSearch
+        if (isRunning) {
+            loadData()
+        }
+    }
+
+    fun toggleSearch() {
+        isSearch = !isSearch
+        cache = if (isSearch) {
+            isRunning = false
+            data.getValue(emptyList()) { it }
+        } else {
+            toggleRunning()
+            emptyList()
+        }
+    }
+
+    fun search(value: String) {
+        keyFlow.value = value
     }
 
     private fun loadData() {
@@ -64,10 +96,15 @@ class ContainerLogsViewModel @Inject constructor(
         }
     }
 
-    fun update(block: (Boolean) -> Boolean) {
-        isRunning = block(isRunning)
-        if (isRunning) {
-            loadData()
+    private fun keyObserver() {
+        viewModelScope.launch {
+            keyFlow.collectLatest { key ->
+                if (isSearch) {
+                    data = LoadData.Success(
+                        cache.filter { it.content.contains(key, ignoreCase = true) }
+                    )
+                }
+            }
         }
     }
 }
