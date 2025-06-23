@@ -1,1 +1,1 @@
--repackageclasses dev.sanmer.docker
+-repackageclasses dev.sanmer.whalya

@@ -18,5 +18,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Docker"
+rootProject.name = "Whalya"
 include(":pki-types", ":core", ":stub", ":app")

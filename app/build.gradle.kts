@@ -16,7 +16,7 @@ val commitShaSuffix = commitSha.let { ".${it.substring(0, 7)}" }
 val devSuffix = if (devVersion) ".dev" else ""
 
 android {
-    namespace = "dev.sanmer.docker"
+    namespace = "dev.sanmer.whalya"
 
     defaultConfig {
         applicationId = namespace
@@ -77,7 +77,7 @@ android {
     applicationVariants.configureEach {
         outputs.configureEach {
             if (this is ApkVariantOutputImpl) {
-                outputFileName = "Docker-${versionName}-${versionCode}-${name}.apk"
+                outputFileName = "Whalya-${versionName}-${versionCode}-${name}.apk"
             }
         }
     }

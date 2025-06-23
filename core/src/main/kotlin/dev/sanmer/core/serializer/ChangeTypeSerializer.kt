@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 
 object ChangeTypeSerializer : KSerializer<ContainerChanges.ChangeType> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
-        "dev.sanmer.core.docker.response.container.FilesystemChanges.ChangeType",
+        "dev.sanmer.core.response.container.FilesystemChanges.ChangeType",
         PrimitiveKind.INT
     )
 
