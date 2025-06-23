@@ -107,7 +107,7 @@ sealed class Screen {
     data object Settings : Screen()
 
     @Serializable
-    data class Home(val id: Long) : Screen()
+    data class Home(val id: Long, val name: String) : Screen()
 
     @Serializable
     data class Container(val id: String) : Screen()

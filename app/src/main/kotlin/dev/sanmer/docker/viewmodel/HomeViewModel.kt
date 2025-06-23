@@ -46,6 +46,8 @@ class HomeViewModel @Inject constructor(
     private val home = savedStateHandle.toRoute<Screen.Home>()
     private val client by lazy { clientRepository.get(home.id) }
 
+    val name get() = home.name
+
     var system by mutableStateOf<LoadData<UiSystem>>(LoadData.Loading)
         private set
 

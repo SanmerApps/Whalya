@@ -106,7 +106,7 @@ private fun ServersContent(
                 server = server,
                 onPing = onPing
             ) {
-                navController.navigateSingleTopTo(Screen.Home(server.id))
+                navController.navigateSingleTopTo(Screen.Home(server.id, server.name))
             }
         }
     }

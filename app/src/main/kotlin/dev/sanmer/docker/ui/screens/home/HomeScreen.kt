@@ -93,6 +93,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopBar(
+                name = viewModel.name,
                 onRefresh = loadData[pagerState.targetPage],
                 scrollBehavior = scrollBehavior
             )
@@ -284,11 +285,12 @@ private fun PruneSubtitle(
 
 @Composable
 private fun TopBar(
+    name: String,
     onRefresh: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
-        title = { Text(text = stringResource(R.string.app_name)) },
+        title = { Text(text = name) },
         actions = {
             IconButton(
                 onClick = onRefresh
