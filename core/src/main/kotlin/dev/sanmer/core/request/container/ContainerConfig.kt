@@ -89,7 +89,7 @@ data class ContainerConfig(
     @Serializable
     data class Networking(
         @SerialName("EndpointsConfig")
-        val endpointsConfig: EndpointSettings
+        val endpointsConfig: Map<String, EndpointSettings>
     ) {
         @Serializable
         data class EndpointSettings(

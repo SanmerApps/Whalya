@@ -36,7 +36,9 @@ class Containers {
 
     @Resource("create")
     class Create(
-        val parent: Containers = Containers()
+        val parent: Containers = Containers(),
+        val name: String,
+        val platform: String? = null
     )
 
     @Resource("{id}/json")

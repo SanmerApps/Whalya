@@ -473,6 +473,12 @@ private fun OperationBottomSheet(
             )
 
             OperationButton(
+                onClick = { onOperate(Operate.Up) },
+                painter = painterResource(R.drawable.arrow_up_to_arc),
+                label = stringResource(R.string.operation_up)
+            )
+
+            OperationButton(
                 onClick = { onOperate(Operate.Remove) },
                 painter = painterResource(R.drawable.trash),
                 label = stringResource(R.string.operation_remove)

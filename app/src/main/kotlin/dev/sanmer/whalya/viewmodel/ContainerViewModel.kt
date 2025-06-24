@@ -12,16 +12,22 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.core.Docker.delete
 import dev.sanmer.core.Docker.get
 import dev.sanmer.core.Docker.post
+import dev.sanmer.core.converter.toConfig
 import dev.sanmer.core.resource.Containers
 import dev.sanmer.core.response.container.Container
 import dev.sanmer.core.response.container.ContainerLowLevel
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
+import dev.sanmer.whalya.model.LoadData.Default.getOrThrow
+import dev.sanmer.whalya.model.ui.home.UiContainer.Default.name
 import dev.sanmer.whalya.model.ui.home.UiContainer.Default.shortId
 import dev.sanmer.whalya.model.ui.inspect.UiContainer
 import dev.sanmer.whalya.repository.ClientRepository
 import dev.sanmer.whalya.ui.main.Screen
 import io.ktor.client.call.body
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
@@ -94,10 +100,6 @@ class ContainerViewModel @Inject constructor(
                         Containers.Start(id = container.id)
                     )
 
-                    Operate.Restart -> client.post(
-                        Containers.Restart(id = container.id)
-                    )
-
                     Operate.Pause -> client.post(
                         Containers.Pause(id = container.id)
                     )
@@ -105,6 +107,30 @@ class ContainerViewModel @Inject constructor(
                     Operate.Unpause -> client.post(
                         Containers.Unpause(id = container.id)
                     )
+
+                    Operate.Restart -> client.post(
+                        Containers.Restart(id = container.id)
+                    )
+
+                    Operate.Up -> {
+                        val container = data.getOrThrow().original
+                        val config = container.toConfig()
+                        client.post(
+                            Containers.Stop(id = container.id)
+                        )
+                        client.delete(
+                            Containers.Remove(id = container.id)
+                        )
+                        client.post(
+                            Containers.Create(name = container.name)
+                        ) {
+                            contentType(ContentType.Application.Json)
+                            setBody(config)
+                        }
+                        client.post(
+                            Containers.Start(id = container.name.name())
+                        )
+                    }
 
                     Operate.Remove -> client.delete(
                         Containers.Remove(id = container.id)
@@ -144,9 +170,10 @@ class ContainerViewModel @Inject constructor(
     enum class Operate {
         Stop,
         Start,
-        Restart,
         Pause,
         Unpause,
+        Restart,
+        Up,
         Remove
     }
 }
