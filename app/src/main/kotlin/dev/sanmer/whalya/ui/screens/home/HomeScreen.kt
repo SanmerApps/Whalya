@@ -57,6 +57,7 @@ import dev.sanmer.whalya.ui.screens.home.pages.NetworksPage
 import dev.sanmer.whalya.ui.screens.home.pages.SystemPage
 import dev.sanmer.whalya.ui.screens.home.pages.VolumesPage
 import dev.sanmer.whalya.viewmodel.HomeViewModel
+import dev.sanmer.whalya.viewmodel.HomeViewModel.Load.Default.load
 import dev.sanmer.whalya.viewmodel.HomeViewModel.Prune
 import dev.sanmer.whalya.viewmodel.HomeViewModel.PruneResult
 import kotlinx.coroutines.launch
@@ -70,16 +71,6 @@ fun HomeScreen(
     val scrollBehaviors = List(pagerState.pageCount) { TopAppBarDefaults.pinnedScrollBehavior() }
     val scrollBehavior by remember { derivedStateOf { scrollBehaviors[pagerState.targetPage] } }
 
-    val loadData = remember {
-        listOf(
-            viewModel::loadSystemData,
-            viewModel::loadContainersData,
-            viewModel::loadImagesData,
-            viewModel::loadNetworksData,
-            viewModel::loadVolumesData
-        )
-    }
-
     var prune by remember { mutableStateOf(false) }
     if (prune) {
         PruneBottomSheet(
@@ -90,11 +81,16 @@ fun HomeScreen(
         )
     }
 
+    DisposableEffect(true) {
+        viewModel.loadData(navController.load)
+        onDispose {}
+    }
+
     Scaffold(
         topBar = {
             TopBar(
                 name = viewModel.name,
-                onRefresh = loadData[pagerState.targetPage],
+                onRefresh = { viewModel.loadData(pagerState.targetPage) },
                 scrollBehavior = scrollBehavior
             )
         },

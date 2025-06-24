@@ -130,9 +130,9 @@ class VolumeViewModel @Inject constructor(
     private fun resultObserver() {
         viewModelScope.launch {
             snapshotFlow { result }
-                .filterIsInstance<LoadData.Success<*>>()
+                .filterIsInstance<LoadData.Success<Operate>>()
                 .collectLatest {
-                    loadData()
+                    if (!it.value.isDestroyed) loadData()
                 }
         }
     }
@@ -144,6 +144,8 @@ class VolumeViewModel @Inject constructor(
     }
 
     enum class Operate {
-        Remove
+        Remove;
+
+        val isDestroyed inline get() = this == Remove
     }
 }

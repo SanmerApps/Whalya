@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.core.Docker.get
@@ -67,71 +68,62 @@ class HomeViewModel @Inject constructor(
 
     init {
         Timber.d("HomeViewModel init")
-        loadSystemData()
-        loadContainersData()
-        loadImagesData()
-        loadNetworksData()
-        loadVolumesData()
+        loadData(Load.System)
+        loadData(Load.Containers)
+        loadData(Load.Images)
+        loadData(Load.Networks)
+        loadData(Load.Volumes)
     }
 
-    fun loadSystemData() {
-        viewModelScope.launch {
-            system = runCatching {
-                UiSystem(
-                    original = client.get(System.Info()).body(),
-                    version = client.get(System.Version()).body()
-                )
-            }.onFailure {
-                Timber.e(it)
-            }.asLoadData()
-        }
+    fun loadData(index: Int) {
+        loadData(Load.All[index])
     }
 
-    fun loadContainersData() {
+    fun loadData(load: Load) {
         viewModelScope.launch {
-            containers = runCatching {
-                client.get(
-                    Containers.All(all = true)
-                ).body<List<Container>>().map(::UiContainer)
-            }.onFailure {
-                Timber.e(it)
-            }.asLoadData()
-        }
-    }
+            when (load) {
+                Load.None -> {}
+                Load.System -> system = runCatching {
+                    UiSystem(
+                        original = client.get(System.Info()).body(),
+                        version = client.get(System.Version()).body()
+                    )
+                }.onFailure {
+                    Timber.e(it)
+                }.asLoadData()
 
-    fun loadImagesData() {
-        viewModelScope.launch {
-            images = runCatching {
-                client.get(
-                    Images.All(all = true)
-                ).body<List<Image>>().map(::UiImage)
-            }.onFailure {
-                Timber.e(it)
-            }.asLoadData()
-        }
-    }
+                Load.Containers -> containers = runCatching {
+                    client.get(
+                        Containers.All(all = true)
+                    ).body<List<Container>>().map(::UiContainer)
+                }.onFailure {
+                    Timber.e(it)
+                }.asLoadData()
 
-    fun loadNetworksData() {
-        viewModelScope.launch {
-            networks = runCatching {
-                client.get(
-                    Networks()
-                ).body<List<Network>>().map(::UiNetwork)
-            }.onFailure {
-                Timber.e(it)
-            }.asLoadData()
-        }
-    }
+                Load.Images -> images = runCatching {
+                    client.get(
+                        Images.All(all = true)
+                    ).body<List<Image>>().map(::UiImage)
+                }.onFailure {
+                    Timber.e(it)
+                }.asLoadData()
 
-    fun loadVolumesData() {
-        viewModelScope.launch {
-            volumes = runCatching {
-                client.get(
-                    Volumes()
-                ).body<VolumeList>().volumes.map(::UiVolume)
-            }.onFailure {
-                Timber.e(it)
-            }.asLoadData()
+                Load.Networks -> networks = runCatching {
+                    client.get(
+                        Networks()
+                    ).body<List<Network>>().map(::UiNetwork)
+                }.onFailure {
+                    Timber.e(it)
+                }.asLoadData()
+
+                Load.Volumes -> volumes = runCatching {
+                    client.get(
+                        Volumes()
+                    ).body<VolumeList>().volumes.map(::UiVolume)
+                }.onFailure {
+                    Timber.e(it)
+                }.asLoadData()
+            }
         }
     }
 
@@ -169,6 +161,41 @@ class HomeViewModel @Inject constructor(
 
     fun getPruneData(target: Prune) = pruned.getOrDefault(target, LoadData.Pending)
     fun clearPruneData() = pruned.clear()
+
+    enum class Load {
+        None,
+        System,
+        Containers,
+        Images,
+        Networks,
+        Volumes;
+
+        companion object Default {
+            val All = listOf(
+                System,
+                Containers,
+                Images,
+                Networks,
+                Volumes
+            )
+
+            val SavedStateHandle.load
+                inline get() = Load.valueOf(
+                    get(Load::class.java.name) ?: None.name
+                )
+
+            val NavController.load
+                inline get() = currentBackStackEntry?.savedStateHandle?.load ?: None
+
+            fun SavedStateHandle.setLoad(value: Load) {
+                set(Load::class.java.name, value.name)
+            }
+
+            fun NavController.setLoad(value: Load) {
+                previousBackStackEntry?.savedStateHandle?.setLoad(value)
+            }
+        }
+    }
 
     data class PruneResult(
         val sizeDeleted: Int,

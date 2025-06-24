@@ -168,9 +168,9 @@ class ImageViewModel @Inject constructor(
     private fun resultObserver() {
         viewModelScope.launch {
             snapshotFlow { result }
-                .filterIsInstance<LoadData.Success<*>>()
+                .filterIsInstance<LoadData.Success<Operate>>()
                 .collectLatest {
-                    loadData()
+                    if (!it.value.isDestroyed) loadData()
                 }
         }
     }
@@ -185,6 +185,8 @@ class ImageViewModel @Inject constructor(
 
     enum class Operate {
         Pull,
-        Remove
+        Remove;
+
+        val isDestroyed inline get() = this == Remove
     }
 }
