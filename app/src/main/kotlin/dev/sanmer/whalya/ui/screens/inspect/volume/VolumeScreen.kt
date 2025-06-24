@@ -79,7 +79,8 @@ fun VolumeScreen(
         BottomSheet.Closed -> {}
         BottomSheet.Operate -> OperationBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
-            onOperate = viewModel::operate
+            onOperate = viewModel::operate,
+            enabledRemove = viewModel.containers.isEmpty()
         )
 
         BottomSheet.Result -> OperationResultBottomSheet(
@@ -283,7 +284,8 @@ private fun ContainerItem(
 @Composable
 private fun OperationBottomSheet(
     onDismiss: () -> Unit,
-    onOperate: (Operate) -> Unit
+    onOperate: (Operate) -> Unit,
+    enabledRemove: Boolean
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -305,6 +307,7 @@ private fun OperationBottomSheet(
         ) {
             OperationButton(
                 onClick = { onOperate(Operate.Remove) },
+                enabled = enabledRemove,
                 painter = painterResource(R.drawable.trash),
                 label = stringResource(R.string.operation_remove)
             )

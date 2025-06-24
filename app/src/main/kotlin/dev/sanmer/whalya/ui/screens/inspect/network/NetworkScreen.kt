@@ -21,6 +21,9 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -31,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.model.LoadData
+import dev.sanmer.whalya.model.LoadData.Default.getValue
 import dev.sanmer.whalya.model.ui.inspect.UiNetwork
 import dev.sanmer.whalya.ui.component.AnimatedText
 import dev.sanmer.whalya.ui.component.Failed
@@ -58,6 +62,11 @@ fun NetworkScreen(
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val containers by remember {
+        derivedStateOf {
+            viewModel.data.getValue(emptyList()) { it.containers }
+        }
+    }
 
     DisposableEffect(viewModel.result) {
         when (val result = viewModel.result) {
@@ -78,7 +87,8 @@ fun NetworkScreen(
         BottomSheet.Closed -> {}
         BottomSheet.Operate -> OperationBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
-            onOperate = viewModel::operate
+            onOperate = viewModel::operate,
+            enabledRemove = containers.isEmpty()
         )
 
         BottomSheet.Result -> OperationResultBottomSheet(
@@ -284,7 +294,8 @@ private fun ContainerItem(
 @Composable
 private fun OperationBottomSheet(
     onDismiss: () -> Unit,
-    onOperate: (Operate) -> Unit
+    onOperate: (Operate) -> Unit,
+    enabledRemove: Boolean
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -306,6 +317,7 @@ private fun OperationBottomSheet(
         ) {
             OperationButton(
                 onClick = { onOperate(Operate.Remove) },
+                enabled = enabledRemove,
                 painter = painterResource(R.drawable.trash),
                 label = stringResource(R.string.operation_remove)
             )

@@ -84,8 +84,8 @@ fun ContainerScreen(
         BottomSheet.Closed -> {}
         BottomSheet.Operate -> OperationBottomSheet(
             onDismiss = { viewModel.update(BottomSheet.Closed) },
-            state = viewModel.state,
-            onOperate = viewModel::operate
+            onOperate = viewModel::operate,
+            state = viewModel.state
         )
 
         BottomSheet.Result -> OperationResultBottomSheet(
@@ -412,8 +412,8 @@ private fun NetworkItem(
 @Composable
 private fun OperationBottomSheet(
     onDismiss: () -> Unit,
-    state: Container.State,
-    onOperate: (Operate) -> Unit
+    onOperate: (Operate) -> Unit,
+    state: Container.State
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -489,6 +489,7 @@ private fun OperationBottomSheet(
 
             OperationButton(
                 onClick = { onOperate(Operate.Remove) },
+                enabled = state.isExited,
                 painter = painterResource(R.drawable.trash),
                 label = stringResource(R.string.operation_remove)
             )
