@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.self.hilt)
     alias(libs.plugins.self.room)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.licensee)
     alias(libs.plugins.rikka.refine)
 }
 
@@ -83,6 +84,14 @@ android {
     }
 }
 
+licensee {
+    bundleAndroidAsset.set(true)
+    allow("Apache-2.0")
+    allowUrl("https://opensource.org/license/mit") {
+        because("MIT")
+    }
+}
+
 dependencies {
     compileOnly(projects.stub)
     implementation(projects.core)
@@ -102,6 +111,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.hiddenApiBypass)
     implementation(libs.timber)

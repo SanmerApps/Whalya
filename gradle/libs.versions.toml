@@ -13,6 +13,7 @@ androidxHiltNavigationCompose = "1.2.0"
 androidxLifecycle = "2.9.1"
 androidxNavigation = "2.9.0"
 androidxRoom = "2.7.2"
+cashLicensee = "1.13.0"
 hiddenApiRefine = "4.4.0"
 hiddenApiBypass = "6.1"
 hilt = "2.56.2"
@@ -82,4 +83,5 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+licensee = { id = "app.cash.licensee", version.ref = "cashLicensee" }
 rikka-refine = { id = "dev.rikka.tools.refine", version.ref = "hiddenApiRefine" }

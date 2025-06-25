@@ -15,7 +15,12 @@
     <!--Settings -->
     <string name="setting_title">Settings</string>
     <string name="setting_version">Version</string>
-    <string name="setting_build_info">Build Info</string>
+    <string name="setting_about">About</string>
+    <string name="setting_licenses">Licenses</string>
+    <string name="setting_licenses_desc">View open source licenses</string>
+
+    <!-- Licenses -->
+    <string name="license_title">Licenses</string>
 
     <!-- Home -->
     <string name="home_system">System</string>

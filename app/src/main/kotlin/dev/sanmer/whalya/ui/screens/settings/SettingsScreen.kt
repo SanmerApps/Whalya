@@ -2,10 +2,12 @@ package dev.sanmer.whalya.ui.screens.settings
 
 import android.content.Intent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,7 +36,9 @@ import dev.sanmer.whalya.R
 import dev.sanmer.whalya.ktx.toLocalDateTime
 import dev.sanmer.whalya.ui.component.ValueText
 import dev.sanmer.whalya.ui.component.ValuesColumn
+import dev.sanmer.whalya.ui.ktx.navigateSingleTopTo
 import dev.sanmer.whalya.ui.ktx.plus
+import dev.sanmer.whalya.ui.main.Screen
 import dev.sanmer.whalya.viewmodel.SettingsViewModel
 import kotlinx.datetime.TimeZone
 
@@ -70,16 +74,20 @@ fun SettingsScreen(
             }
 
             TitleColum(
-                title = stringResource(R.string.setting_build_info)
+                title = stringResource(R.string.setting_about)
             ) {
-                BuildInfoCard()
+                BuildInfoCard(
+                    navController = navController,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun BuildInfoCard() {
+private fun BuildInfoCard(
+    navController: NavController,
+) {
     val buildTime = rememberSaveable {
         BuildConfig.BUILD_TIME
             .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -114,6 +122,17 @@ private fun BuildInfoCard() {
             title = stringResource(R.string.docker_build_time),
             value = buildTime,
             modifier = Modifier.padding(all = 15.dp)
+        )
+
+        HorizontalDivider()
+
+        ValueText(
+            title = stringResource(R.string.setting_licenses),
+            value = stringResource(R.string.setting_licenses_desc),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigateSingleTopTo(Screen.Licenses) }
+                .padding(all = 15.dp)
         )
     }
 }

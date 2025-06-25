@@ -14,6 +14,7 @@ import dev.sanmer.whalya.ui.screens.inspect.container.ContainerStatsScreen
 import dev.sanmer.whalya.ui.screens.inspect.image.ImageScreen
 import dev.sanmer.whalya.ui.screens.inspect.network.NetworkScreen
 import dev.sanmer.whalya.ui.screens.inspect.volume.VolumeScreen
+import dev.sanmer.whalya.ui.screens.licenses.LicensesScreen
 import dev.sanmer.whalya.ui.screens.servers.AddServerScreen
 import dev.sanmer.whalya.ui.screens.servers.ServersScreen
 import dev.sanmer.whalya.ui.screens.settings.SettingsScreen
@@ -44,6 +45,12 @@ fun MainScreen() {
 
         composable<Screen.Settings> {
             SettingsScreen(
+                navController = navController
+            )
+        }
+
+        composable<Screen.Licenses> {
+            LicensesScreen(
                 navController = navController
             )
         }
@@ -105,6 +112,9 @@ sealed class Screen {
 
     @Serializable
     data object Settings : Screen()
+
+    @Serializable
+    data object Licenses : Screen()
 
     @Serializable
     data class Home(val id: Long, val name: String) : Screen()
