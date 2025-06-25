@@ -215,12 +215,15 @@ private fun ContainerCard(
             )
         }
 
-        if (container.restartPolicy.isNotEmpty()) {
-            ValueText(
-                title = stringResource(R.string.container_restart_policy),
-                value = container.restartPolicy
-            )
-        }
+        ValueText(
+            title = stringResource(R.string.container_last_started),
+            value = container.lastStarted
+        )
+
+        ValueText(
+            title = stringResource(R.string.container_restart_policy),
+            value = container.restartPolicy
+        )
 
         if (container.ports.isNotEmpty()) {
             ValuesFlow(

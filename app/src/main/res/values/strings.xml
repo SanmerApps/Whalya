@@ -39,6 +39,23 @@
     <string name="container_networks">Networks</string>
     <string name="container_command">Command</string>
     <string name="container_pid">Pid</string>
+    <string name="container_last_started">Last Started</string>
+    <plurals name="container_last_started_day">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <plurals name="container_last_started_hour">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="container_last_started_minute">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="container_last_started_second">
+        <item quantity="one">%1$d second ago</item>
+        <item quantity="other">%1$d second ago</item>
+    </plurals>
     <string name="container_restart_policy">Restart Policy</string>
 
     <!-- Container Stats -->

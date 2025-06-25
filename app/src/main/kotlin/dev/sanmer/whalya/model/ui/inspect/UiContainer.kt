@@ -5,12 +5,18 @@ import dev.sanmer.core.request.container.ContainerConfig
 import dev.sanmer.core.request.container.HostConfig
 import dev.sanmer.core.response.container.Container
 import dev.sanmer.core.response.container.ContainerLowLevel
+import dev.sanmer.whalya.R
+import dev.sanmer.whalya.compat.ContextCompat
 import dev.sanmer.whalya.ktx.copy
 import dev.sanmer.whalya.ktx.sizeBySI
 import dev.sanmer.whalya.model.ui.home.UiContainer.Default.name
 import dev.sanmer.whalya.model.ui.home.UiImage.Default.digest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 data class UiContainer(
     val original: ContainerLowLevel
@@ -49,9 +55,51 @@ data class UiContainer(
         original.path + original.args.joinToString(separator = " ", prefix = " ")
     }
 
+    val lastStarted by lazy {
+        val value = Clock.System.now() - original.state.startedAt
+        val resources = ContextCompat.getContext().resources
+        when {
+            value >= 1.days -> {
+                val days = value.inWholeDays
+                resources.getQuantityString(
+                    R.plurals.container_last_started_day,
+                    days.toInt(),
+                    days
+                )
+            }
+
+            value >= 1.hours -> {
+                val hours = value.inWholeHours
+                resources.getQuantityString(
+                    R.plurals.container_last_started_hour,
+                    hours.toInt(),
+                    hours
+                )
+            }
+
+            value >= 1.minutes -> {
+                val minutes = value.inWholeMinutes
+                resources.getQuantityString(
+                    R.plurals.container_last_started_minute,
+                    minutes.toInt(),
+                    minutes
+                )
+            }
+
+            else -> {
+                val seconds = value.inWholeSeconds
+                resources.getQuantityString(
+                    R.plurals.container_last_started_second,
+                    seconds.toInt(),
+                    seconds
+                )
+            }
+        }
+    }
+
     val restartPolicy by lazy {
         with(original.hostConfig.restartPolicy) {
-            if (name == dev.sanmer.core.request.container.HostConfig.RestartPolicy.Name.OnFailure) {
+            if (name == HostConfig.RestartPolicy.Name.OnFailure) {
                 "$name (${maximumRetryCount})"
             } else {
                 "$name"
