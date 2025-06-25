@@ -5,9 +5,9 @@ import dev.sanmer.core.response.image.ImageHistory
 import dev.sanmer.core.response.image.ImageLowLevel
 import dev.sanmer.whalya.ktx.copy
 import dev.sanmer.whalya.ktx.sizeBySI
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 data class UiImage(
     val original: ImageLowLevel

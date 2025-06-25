@@ -1,8 +1,9 @@
 package dev.sanmer.core.response.system
 
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class SystemVersion(
@@ -29,6 +30,7 @@ data class SystemVersion(
     @SerialName("Experimental")
     val experimental: Boolean = false,
     @SerialName("BuildTime")
+    @Contextual
     val buildTime: Instant
 ) {
     @Serializable

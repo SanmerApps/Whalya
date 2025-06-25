@@ -1,8 +1,9 @@
 package dev.sanmer.core.response.system
 
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class SystemInfo(
@@ -25,6 +26,7 @@ data class SystemInfo(
     @SerialName("Debug")
     val debug: Boolean,
     @SerialName("SystemTime")
+    @Contextual
     val systemTime: Instant,
     @SerialName("LoggingDriver")
     val loggingDriver: String,

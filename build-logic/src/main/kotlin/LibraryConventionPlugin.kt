@@ -6,6 +6,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 class LibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
@@ -29,6 +30,16 @@ class LibraryConventionPlugin : Plugin<Project> {
         extensions.configure<JavaPluginExtension> {
             toolchain {
                 languageVersion.set(JavaLanguageVersion.of(21))
+            }
+        }
+
+        extensions.configure<KotlinAndroidProjectExtension> {
+            jvmToolchain(21)
+
+            sourceSets.all {
+                languageSettings {
+                    optIn("kotlin.time.ExperimentalTime")
+                }
             }
         }
     }

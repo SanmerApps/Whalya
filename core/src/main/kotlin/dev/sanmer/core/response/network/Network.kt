@@ -1,9 +1,10 @@
 package dev.sanmer.core.response.network
 
 import dev.sanmer.core.request.network.NetworkConfig
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class Network(
@@ -12,6 +13,7 @@ data class Network(
     @SerialName("Id")
     val id: String,
     @SerialName("Created")
+    @Contextual
     val created: Instant,
     @SerialName("Scope")
     val scope: String,

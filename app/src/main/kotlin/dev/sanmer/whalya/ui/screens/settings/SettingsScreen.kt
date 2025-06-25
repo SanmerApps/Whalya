@@ -31,13 +31,12 @@ import dev.sanmer.core.Docker
 import dev.sanmer.whalya.BuildConfig
 import dev.sanmer.whalya.Const
 import dev.sanmer.whalya.R
+import dev.sanmer.whalya.ktx.toLocalDateTime
 import dev.sanmer.whalya.ui.component.ValueText
 import dev.sanmer.whalya.ui.component.ValuesColumn
 import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.viewmodel.SettingsViewModel
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun SettingsScreen(
@@ -82,7 +81,7 @@ fun SettingsScreen(
 @Composable
 private fun BuildInfoCard() {
     val buildTime = rememberSaveable {
-        Instant.fromEpochMilliseconds(BuildConfig.BUILD_TIME)
+        BuildConfig.BUILD_TIME
             .toLocalDateTime(TimeZone.currentSystemDefault())
             .toString()
     }

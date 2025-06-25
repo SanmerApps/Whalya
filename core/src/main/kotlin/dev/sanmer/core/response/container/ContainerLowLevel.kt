@@ -2,15 +2,17 @@ package dev.sanmer.core.response.container
 
 import dev.sanmer.core.request.container.ContainerConfig
 import dev.sanmer.core.request.container.HostConfig
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class ContainerLowLevel(
     @SerialName("Id")
     val id: String,
     @SerialName("Created")
+    @Contextual
     val created: Instant = Instant.fromEpochMilliseconds(0),
     @SerialName("Path")
     val path: String,
@@ -80,8 +82,10 @@ data class ContainerLowLevel(
         @SerialName("Error")
         val error: String = "",
         @SerialName("StartedAt")
+        @Contextual
         val startedAt: Instant = Instant.fromEpochMilliseconds(0),
         @SerialName("FinishedAt")
+        @Contextual
         val finishedAt: Instant = Instant.fromEpochMilliseconds(0),
         @SerialName("Health")
         val health: Health = Health()
@@ -98,8 +102,10 @@ data class ContainerLowLevel(
             @Serializable
             data class CheckResult(
                 @SerialName("Start")
+                @Contextual
                 val start: Instant,
                 @SerialName("End")
+                @Contextual
                 val end: Instant,
                 @SerialName("ExitCode")
                 val exitCode: Int,

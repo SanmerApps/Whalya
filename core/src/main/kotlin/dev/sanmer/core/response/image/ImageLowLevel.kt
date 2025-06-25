@@ -1,9 +1,10 @@
 package dev.sanmer.core.response.image
 
 import dev.sanmer.core.response.container.ContainerLowLevel
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class ImageLowLevel(
@@ -18,6 +19,7 @@ data class ImageLowLevel(
     @SerialName("Comment")
     val comment: String = "",
     @SerialName("Created")
+    @Contextual
     val created: Instant = Instant.fromEpochMilliseconds(0),
     @SerialName("DockerVersion")
     val dockerVersion: String = "",
@@ -53,6 +55,7 @@ data class ImageLowLevel(
     @Serializable
     data class Metadata(
         @SerialName("LastTagTime")
+        @Contextual
         val lastTagTime: Instant = Instant.fromEpochMilliseconds(0)
     )
 }

@@ -3,9 +3,9 @@ package dev.sanmer.whalya.model.ui.home
 import dev.sanmer.core.Labels
 import dev.sanmer.core.response.image.Image
 import dev.sanmer.whalya.ktx.sizeBySI
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 data class UiImage(
     val original: Image

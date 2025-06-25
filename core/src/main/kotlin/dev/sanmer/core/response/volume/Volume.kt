@@ -1,8 +1,9 @@
 package dev.sanmer.core.response.volume
 
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class Volume(
@@ -13,6 +14,7 @@ data class Volume(
     @SerialName("Mountpoint")
     val mountPoint: String,
     @SerialName("CreatedAt")
+    @Contextual
     val createdAt: Instant,
     @SerialName("Status")
     val status: Map<String, String> = emptyMap(),

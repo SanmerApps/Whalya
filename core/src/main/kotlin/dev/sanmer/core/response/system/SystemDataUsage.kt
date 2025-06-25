@@ -3,9 +3,10 @@ package dev.sanmer.core.response.system
 import dev.sanmer.core.response.container.Container
 import dev.sanmer.core.response.image.Image
 import dev.sanmer.core.response.volume.Volume
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class SystemDataUsage(
@@ -37,8 +38,10 @@ data class SystemDataUsage(
         @SerialName("Size")
         val size: Long,
         @SerialName("CreatedAt")
+        @Contextual
         val createdAt: Instant,
         @SerialName("LastUsedAt")
+        @Contextual
         val lastUsedAt: Instant = Instant.fromEpochMilliseconds(0),
         @SerialName("UsageCount")
         val usageCount: Int

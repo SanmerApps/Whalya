@@ -1,8 +1,9 @@
 package dev.sanmer.core.response.container
 
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class ContainerStats(
@@ -11,8 +12,10 @@ data class ContainerStats(
     @SerialName("id")
     val id: String,
     @SerialName("read")
+    @Contextual
     val read: Instant,
     @SerialName("preread")
+    @Contextual
     val preRead: Instant,
     @SerialName("pids_stats")
     val pidsStats: PidsStats,
