@@ -336,8 +336,8 @@ private fun BottomBar(
 }
 
 private enum class BottomBar(
-    @DrawableRes val icon: Int,
-    @StringRes val label: Int
+    @field:DrawableRes val icon: Int,
+    @field:StringRes val label: Int
 ) {
     System(
         icon = R.drawable.browser,

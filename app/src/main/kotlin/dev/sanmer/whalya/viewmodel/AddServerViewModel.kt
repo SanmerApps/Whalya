@@ -162,7 +162,7 @@ class AddServerViewModel @Inject constructor(
     )
 
     enum class MutualTLS(
-        @StringRes val text: Int,
+        @field:StringRes val text: Int,
         val placeholder: String
     ) {
         CA(R.string.sever_ca_cert, Const.CERT_DEMO),
