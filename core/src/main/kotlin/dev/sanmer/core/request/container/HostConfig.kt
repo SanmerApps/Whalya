@@ -68,7 +68,7 @@ data class HostConfig(
     val logConfig: LogConfig,
     @SerialName("NetworkMode")
     val networkMode: String,
-    @SerialName("Ports")
+    @SerialName("PortBindings")
     val ports: Map<String, List<PortBinding>?> = emptyMap(),
     @SerialName("RestartPolicy")
     val restartPolicy: RestartPolicy,
