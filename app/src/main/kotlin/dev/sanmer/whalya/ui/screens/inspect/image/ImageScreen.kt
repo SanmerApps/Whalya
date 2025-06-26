@@ -62,7 +62,6 @@ import dev.sanmer.whalya.ui.component.OperationButton
 import dev.sanmer.whalya.ui.component.OperationResultBottomSheet
 import dev.sanmer.whalya.ui.component.ValueText
 import dev.sanmer.whalya.ui.component.ValuesColumn
-import dev.sanmer.whalya.ui.component.ValuesFlow
 import dev.sanmer.whalya.ui.component.ValuesFlowRow
 import dev.sanmer.whalya.ui.component.WithIcon
 import dev.sanmer.whalya.ui.ktx.bottom
@@ -225,11 +224,6 @@ private fun ImageCard(
         ValueText(
             title = stringResource(R.string.image_digests),
             value = image.repoDigests
-        )
-
-        ValuesFlow(
-            title = stringResource(R.string.os_platform),
-            values = image.platform
         )
 
         ValuesFlowRow(

@@ -28,10 +28,6 @@ data class UiImage(
         original.repoDigests.joinToString("\n") { it }
     }
 
-    val platform by lazy {
-        listOf(original.os, original.architecture)
-    }
-
     val createdAt by lazy {
         original.created.toLocalDateTime(TimeZone.currentSystemDefault())
             .copy(nanosecond = 0)
