@@ -183,10 +183,6 @@ private fun VolumeCard(
                 text = volume.createdAt
             )
 
-            LabelText(
-                text = stringResource(R.string.scope, volume.scope)
-            )
-
             if (!volume.composeProject.isNullOrEmpty()) {
                 LabelText(
                     text = stringResource(

@@ -15,9 +15,6 @@ data class UiVolume(
     val mountPoint: String
         inline get() = original.mountPoint
 
-    val scope: Volume.Scope
-        inline get() = original.scope
-
     val createdAt by lazy {
         original.createdAt.toLocalDateTime(TimeZone.currentSystemDefault())
             .copy(nanosecond = 0)

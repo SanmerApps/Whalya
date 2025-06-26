@@ -95,7 +95,6 @@
     <string name="labels">Labels</string>
     <string name="driver">Driver</string>
     <string name="size">Size</string>
-    <string name="scope">Scope: %1$s</string>
     <string name="compose_version">Compose: %1$s</string>
     <string name="compose_project">Project: %1$s</string>
 

@@ -81,10 +81,6 @@ private fun VolumeItem(
                 text = volume.createdAt
             )
 
-            LabelText(
-                text = stringResource(R.string.scope, volume.scope)
-            )
-
             if (!volume.composeProject.isNullOrEmpty()) {
                 LabelText(
                     text = stringResource(

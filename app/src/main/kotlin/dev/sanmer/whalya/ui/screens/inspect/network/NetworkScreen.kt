@@ -198,10 +198,6 @@ private fun NetworkCard(
                 text = network.createdAt
             )
 
-            LabelText(
-                text = stringResource(R.string.scope, network.scope)
-            )
-
             if (!network.composeProject.isNullOrEmpty()) {
                 LabelText(
                     text = stringResource(

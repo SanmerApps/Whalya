@@ -24,9 +24,6 @@ data class UiNetwork(
     val driver: String
         inline get() = original.driver
 
-    val scope: String
-        inline get() = original.scope
-
     val subnet by lazy {
         original.ipAM.config.joinToString("\n") { it.subnet }
     }

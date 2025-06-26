@@ -15,9 +15,6 @@ data class UiNetwork(
     val id: String
         inline get() = original.id
 
-    val scope: String
-        inline get() = original.scope
-
     val subnet by lazy {
         original.ipAM.config.joinToString("\n") { it.subnet }
     }
