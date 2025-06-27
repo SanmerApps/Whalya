@@ -173,11 +173,11 @@ data class UiContainer(
         val subnet by lazy {
             buildString {
                 if (original.ipAddress.isNotEmpty()) {
-                    append("${original.ipAddress}:${original.ipPrefixLen}")
+                    append("${original.ipAddress}/${original.ipPrefixLen}")
                 }
                 if (original.globalIPv6Address.isNotEmpty()) {
                     appendLine()
-                    append("${original.globalIPv6Address}:${original.globalIPv6PrefixLen}")
+                    append("${original.globalIPv6Address}/${original.globalIPv6PrefixLen}")
                 }
             }
         }
