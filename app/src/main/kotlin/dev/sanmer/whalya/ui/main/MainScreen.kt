@@ -99,41 +99,41 @@ fun MainScreen() {
     }
 }
 
-sealed class Screen {
+sealed interface Screen {
     @Serializable
-    data object Servers : Screen()
+    data object Servers : Screen
 
     @Serializable
     data class AddServer(
         val id: Long = -1L
-    ) : Screen() {
+    ) : Screen {
         val isEdit = id != -1L
     }
 
     @Serializable
-    data object Settings : Screen()
+    data object Settings : Screen
 
     @Serializable
-    data object Licenses : Screen()
+    data object Licenses : Screen
 
     @Serializable
-    data class Home(val id: Long, val name: String) : Screen()
+    data class Home(val id: Long, val name: String) : Screen
 
     @Serializable
-    data class Container(val id: String) : Screen()
+    data class Container(val id: String) : Screen
 
     @Serializable
-    data class ContainerStats(val id: String) : Screen()
+    data class ContainerStats(val id: String) : Screen
 
     @Serializable
-    data class ContainerLogs(val id: String) : Screen()
+    data class ContainerLogs(val id: String) : Screen
 
     @Serializable
-    data class Image(val id: String) : Screen()
+    data class Image(val id: String) : Screen
 
     @Serializable
-    data class Network(val id: String) : Screen()
+    data class Network(val id: String) : Screen
 
     @Serializable
-    data class Volume(val name: String) : Screen()
+    data class Volume(val name: String) : Screen
 }
