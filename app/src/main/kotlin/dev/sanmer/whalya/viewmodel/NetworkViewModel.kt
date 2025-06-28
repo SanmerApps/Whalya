@@ -3,37 +3,28 @@ package dev.sanmer.whalya.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.Docker.delete
-import dev.sanmer.core.Docker.get
-import dev.sanmer.core.resource.Networks
-import dev.sanmer.core.response.network.Network
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.ui.home.UiContainer.Default.shortId
 import dev.sanmer.whalya.model.ui.inspect.UiNetwork
-import dev.sanmer.whalya.repository.ClientRepository
+import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
-import io.ktor.client.call.body
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class NetworkViewModel @Inject constructor(
-    private val clientRepository: ClientRepository,
+    private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val network = savedStateHandle.toRoute<Screen.Network>()
-    private val client by lazy { clientRepository.current() }
 
     var name by mutableStateOf(network.id.shortId())
         private set
@@ -52,18 +43,17 @@ class NetworkViewModel @Inject constructor(
     init {
         Timber.d("NetworkViewModel init")
         loadData()
-        resultObserver()
         addCloseable { job.cancel() }
     }
 
     fun loadData() {
         viewModelScope.launch {
             data = runCatching {
-                client.get(
-                    Networks.Inspect(id = network.id)
-                ).body<Network>().let(::UiNetwork).also {
-                    name = it.name
-                }
+                remoteRepository.inspectNetwork(id = network.id)
+                    .let(::UiNetwork)
+                    .also {
+                        name = it.name
+                    }
             }.onFailure {
                 Timber.e(it)
             }.asLoadData()
@@ -77,10 +67,11 @@ class NetworkViewModel @Inject constructor(
             result = LoadData.Loading
             result = runCatching {
                 when (operate) {
-                    Operate.Remove -> client.delete(
-                        Networks.Remove(id = network.id)
-                    )
+                    Operate.Remove -> remoteRepository.removeNetwork(id = network.id)
                 }
+            }.onSuccess {
+                if (!operate.isDestroyed) loadData()
+                remoteRepository.fetchNetworks()
             }.onFailure {
                 Timber.e(it)
             }.asLoadData { operate }
@@ -93,16 +84,6 @@ class NetworkViewModel @Inject constructor(
         if (preValue == BottomSheet.Result) {
             result = LoadData.Pending
             job.cancel()
-        }
-    }
-
-    private fun resultObserver() {
-        viewModelScope.launch {
-            snapshotFlow { result }
-                .filterIsInstance<LoadData.Success<Operate>>()
-                .collectLatest {
-                    if (!it.value.isDestroyed) loadData()
-                }
         }
     }
 

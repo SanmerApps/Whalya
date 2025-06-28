@@ -8,15 +8,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.Docker.get
-import dev.sanmer.core.resource.Containers
 import dev.sanmer.core.response.container.ContainerLog
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.LoadData.Default.getValue
-import dev.sanmer.whalya.repository.ClientRepository
+import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
-import io.ktor.client.call.body
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -28,11 +25,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ContainerLogsViewModel @Inject constructor(
-    private val clientRepository: ClientRepository,
+    private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val containerLogs = savedStateHandle.toRoute<Screen.ContainerLogs>()
-    private val client by lazy { clientRepository.current() }
 
     var data by mutableStateOf<LoadData<List<ContainerLog>>>(LoadData.Loading)
         private set
@@ -78,14 +74,8 @@ class ContainerLogsViewModel @Inject constructor(
         viewModelScope.launch {
             while (isActive && isRunning) {
                 data = runCatching {
-                    client.get(
-                        Containers.Logs(
-                            id = containerLogs.id,
-                            follow = false,
-                            stdout = true,
-                            stderr = true
-                        )
-                    ).body<List<ContainerLog>>().asReversed()
+                    remoteRepository.containerLogs(id = containerLogs.id)
+                        .asReversed()
                 }.onFailure {
                     isRunning = false
                     Timber.e(it)

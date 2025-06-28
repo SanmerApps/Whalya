@@ -55,8 +55,6 @@ import dev.sanmer.whalya.ui.main.Screen
 import dev.sanmer.whalya.viewmodel.ContainerViewModel
 import dev.sanmer.whalya.viewmodel.ContainerViewModel.BottomSheet
 import dev.sanmer.whalya.viewmodel.ContainerViewModel.Operate
-import dev.sanmer.whalya.viewmodel.HomeViewModel
-import dev.sanmer.whalya.viewmodel.HomeViewModel.Load.Default.setLoad
 
 @Composable
 fun ContainerScreen(
@@ -70,7 +68,6 @@ fun ContainerScreen(
             is LoadData.Success<Operate> -> {
                 if (result.value.isDestroyed) {
                     viewModel.update(BottomSheet.Closed)
-                    navController.setLoad(HomeViewModel.Load.Containers)
                     navController.navigateUp()
                 }
             }

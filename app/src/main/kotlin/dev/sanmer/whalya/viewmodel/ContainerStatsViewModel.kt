@@ -8,15 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.Docker.get
-import dev.sanmer.core.resource.Containers
-import dev.sanmer.core.response.container.ContainerStats
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.ui.inspect.UiContainerStats
-import dev.sanmer.whalya.repository.ClientRepository
+import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
-import io.ktor.client.call.body
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -26,11 +22,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ContainerStatsViewModel @Inject constructor(
-    private val clientRepository: ClientRepository,
+    private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val containerStats = savedStateHandle.toRoute<Screen.ContainerStats>()
-    private val client by lazy { clientRepository.current() }
 
     var data by mutableStateOf<LoadData<UiContainerStats>>(LoadData.Loading)
         private set
@@ -47,13 +42,8 @@ class ContainerStatsViewModel @Inject constructor(
         viewModelScope.launch {
             while (isActive && isRunning) {
                 data = runCatching {
-                    client.get(
-                        Containers.Stats(
-                            id = containerStats.id,
-                            stream = false,
-                            oneShot = false
-                        )
-                    ).body<ContainerStats>().let(::UiContainerStats)
+                    remoteRepository.containersStats(id = containerStats.id)
+                        .let(::UiContainerStats)
                 }.onFailure {
                     isRunning = false
                     Timber.e(it)

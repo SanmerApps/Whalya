@@ -57,7 +57,6 @@ import dev.sanmer.whalya.ui.screens.home.pages.NetworksPage
 import dev.sanmer.whalya.ui.screens.home.pages.SystemPage
 import dev.sanmer.whalya.ui.screens.home.pages.VolumesPage
 import dev.sanmer.whalya.viewmodel.HomeViewModel
-import dev.sanmer.whalya.viewmodel.HomeViewModel.Load.Default.load
 import dev.sanmer.whalya.viewmodel.HomeViewModel.Prune
 import dev.sanmer.whalya.viewmodel.HomeViewModel.PruneResult
 import kotlinx.coroutines.launch
@@ -79,11 +78,6 @@ fun HomeScreen(
             onPrune = viewModel::prune,
             onClear = viewModel::clearPruneData
         )
-    }
-
-    DisposableEffect(true) {
-        viewModel.loadData(navController.load)
-        onDispose {}
     }
 
     Scaffold(

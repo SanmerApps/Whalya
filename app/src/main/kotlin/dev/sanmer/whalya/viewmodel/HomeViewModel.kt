@@ -7,23 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.Docker.get
-import dev.sanmer.core.Docker.post
-import dev.sanmer.core.resource.Containers
-import dev.sanmer.core.resource.Images
-import dev.sanmer.core.resource.Networks
-import dev.sanmer.core.resource.System
-import dev.sanmer.core.resource.Volumes
-import dev.sanmer.core.response.container.Container
 import dev.sanmer.core.response.container.ContainerPruned
-import dev.sanmer.core.response.image.Image
 import dev.sanmer.core.response.image.ImagePruned
-import dev.sanmer.core.response.network.Network
 import dev.sanmer.core.response.network.NetworkPruned
-import dev.sanmer.core.response.volume.VolumeList
 import dev.sanmer.core.response.volume.VolumePruned
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
@@ -32,20 +20,18 @@ import dev.sanmer.whalya.model.ui.home.UiImage
 import dev.sanmer.whalya.model.ui.home.UiNetwork
 import dev.sanmer.whalya.model.ui.home.UiSystem
 import dev.sanmer.whalya.model.ui.home.UiVolume
-import dev.sanmer.whalya.repository.ClientRepository
+import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
-import io.ktor.client.call.body
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val clientRepository: ClientRepository,
+    private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val home = savedStateHandle.toRoute<Screen.Home>()
-    private val client by lazy { clientRepository.get(home.id) }
 
     val name get() = home.name
 
@@ -68,11 +54,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         Timber.d("HomeViewModel init")
-        loadData(Load.System)
-        loadData(Load.Containers)
-        loadData(Load.Images)
-        loadData(Load.Networks)
-        loadData(Load.Volumes)
+        remoteObserver()
     }
 
     fun loadData(index: Int) {
@@ -85,42 +67,38 @@ class HomeViewModel @Inject constructor(
                 Load.None -> {}
                 Load.System -> system = runCatching {
                     UiSystem(
-                        original = client.get(System.Info()).body(),
-                        version = client.get(System.Version()).body()
+                        original = remoteRepository.info(),
+                        version = remoteRepository.version()
                     )
                 }.onFailure {
                     Timber.e(it)
                 }.asLoadData()
 
-                Load.Containers -> containers = runCatching {
-                    client.get(
-                        Containers.All(all = true)
-                    ).body<List<Container>>().map(::UiContainer)
+                Load.Containers -> runCatching {
+                    remoteRepository.fetchContainers()
                 }.onFailure {
+                    containers = LoadData.Failure(it)
                     Timber.e(it)
-                }.asLoadData()
+                }
 
-                Load.Images -> images = runCatching {
-                    client.get(
-                        Images.All(all = true)
-                    ).body<List<Image>>().map(::UiImage)
+                Load.Images -> runCatching {
+                    remoteRepository.fetchImages()
                 }.onFailure {
+                    images = LoadData.Failure(it)
                     Timber.e(it)
-                }.asLoadData()
+                }
 
-                Load.Networks -> networks = runCatching {
-                    client.get(
-                        Networks()
-                    ).body<List<Network>>().map(::UiNetwork)
+                Load.Networks -> runCatching {
+                    remoteRepository.fetchNetworks()
                 }.onFailure {
+                    networks = LoadData.Failure(it)
                     Timber.e(it)
-                }.asLoadData()
+                }
 
-                Load.Volumes -> volumes = runCatching {
-                    client.get(
-                        Volumes()
-                    ).body<VolumeList>().volumes.map(::UiVolume)
+                Load.Volumes -> runCatching {
+                    remoteRepository.fetchVolumes()
                 }.onFailure {
+                    volumes = LoadData.Failure(it)
                     Timber.e(it)
                 }.asLoadData()
             }
@@ -137,21 +115,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             pruned[target] = runCatching {
                 when (target) {
-                    Prune.Containers -> client.post(
-                        Containers.Prune()
-                    ).body<ContainerPruned>().let(::PruneResult)
-
-                    Prune.Images -> client.post(
-                        Images.Prune()
-                    ).body<ImagePruned>().let(::PruneResult)
-
-                    Prune.Networks -> client.post(
-                        Networks.Prune()
-                    ).body<NetworkPruned>().let(::PruneResult)
-
-                    Prune.Volumes -> client.post(
-                        Volumes.Prune()
-                    ).body<VolumePruned>().let(::PruneResult)
+                    Prune.Containers -> remoteRepository.pruneContainers().let(::PruneResult)
+                    Prune.Images -> remoteRepository.pruneImages().let(::PruneResult)
+                    Prune.Networks -> remoteRepository.pruneNetworks().let(::PruneResult)
+                    Prune.Volumes -> remoteRepository.pruneVolumes().let(::PruneResult)
                 }
             }.onFailure {
                 Timber.e(it)
@@ -161,6 +128,42 @@ class HomeViewModel @Inject constructor(
 
     fun getPruneData(target: Prune) = pruned.getOrDefault(target, LoadData.Pending)
     fun clearPruneData() = pruned.clear()
+
+    private fun remoteObserver() {
+        loadData(Load.System)
+
+        loadData(Load.Containers)
+        viewModelScope.launch {
+            remoteRepository.containersFlow
+                .collect { list ->
+                    containers = LoadData.Success(list.map(::UiContainer))
+                }
+        }
+
+        loadData(Load.Images)
+        viewModelScope.launch {
+            remoteRepository.imagesFlow
+                .collect { list ->
+                    images = LoadData.Success(list.map(::UiImage))
+                }
+        }
+
+        loadData(Load.Networks)
+        viewModelScope.launch {
+            remoteRepository.networksFlow
+                .collect { list ->
+                    networks = LoadData.Success(list.map(::UiNetwork))
+                }
+        }
+
+        loadData(Load.Volumes)
+        viewModelScope.launch {
+            remoteRepository.volumesFlow
+                .collect { list ->
+                    volumes = LoadData.Success(list.map(::UiVolume))
+                }
+        }
+    }
 
     enum class Load {
         None,
@@ -178,22 +181,6 @@ class HomeViewModel @Inject constructor(
                 Networks,
                 Volumes
             )
-
-            val SavedStateHandle.load
-                inline get() = Load.valueOf(
-                    get(Load::class.java.name) ?: None.name
-                )
-
-            val NavController.load
-                inline get() = currentBackStackEntry?.savedStateHandle?.load ?: None
-
-            fun SavedStateHandle.setLoad(value: Load) {
-                set(Load::class.java.name, value.name)
-            }
-
-            fun NavController.setLoad(value: Load) {
-                previousBackStackEntry?.savedStateHandle?.setLoad(value)
-            }
         }
     }
 

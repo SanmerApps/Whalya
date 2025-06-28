@@ -70,8 +70,6 @@ import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.ktx.setText
 import dev.sanmer.whalya.ui.ktx.surface
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.HomeViewModel
-import dev.sanmer.whalya.viewmodel.HomeViewModel.Load.Default.setLoad
 import dev.sanmer.whalya.viewmodel.ImageViewModel
 import dev.sanmer.whalya.viewmodel.ImageViewModel.BottomSheet
 import dev.sanmer.whalya.viewmodel.ImageViewModel.Operate
@@ -89,7 +87,6 @@ fun ImageScreen(
             is LoadData.Success<Operate> -> {
                 if (result.value.isDestroyed) {
                     viewModel.update(BottomSheet.Closed)
-                    navController.setLoad(HomeViewModel.Load.Images)
                     navController.navigateUp()
                 }
             }

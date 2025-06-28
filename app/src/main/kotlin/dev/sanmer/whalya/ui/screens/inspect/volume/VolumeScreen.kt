@@ -47,8 +47,6 @@ import dev.sanmer.whalya.ui.ktx.bottom
 import dev.sanmer.whalya.ui.ktx.navigatePopTo
 import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.HomeViewModel
-import dev.sanmer.whalya.viewmodel.HomeViewModel.Load.Default.setLoad
 import dev.sanmer.whalya.viewmodel.VolumeViewModel
 import dev.sanmer.whalya.viewmodel.VolumeViewModel.BottomSheet
 import dev.sanmer.whalya.viewmodel.VolumeViewModel.Operate
@@ -65,7 +63,6 @@ fun VolumeScreen(
             is LoadData.Success<Operate> -> {
                 if (result.value.isDestroyed) {
                     viewModel.update(BottomSheet.Closed)
-                    navController.setLoad(HomeViewModel.Load.Volumes)
                     navController.navigateUp()
                 }
             }

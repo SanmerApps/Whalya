@@ -3,40 +3,29 @@ package dev.sanmer.whalya.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.core.Docker.delete
-import dev.sanmer.core.Docker.get
-import dev.sanmer.core.JsonCompat.encodeJson
-import dev.sanmer.core.resource.Containers
-import dev.sanmer.core.resource.Volumes
-import dev.sanmer.core.response.container.Container
-import dev.sanmer.core.response.volume.Volume
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.ui.home.UiContainer
 import dev.sanmer.whalya.model.ui.inspect.UiVolume
-import dev.sanmer.whalya.repository.ClientRepository
+import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
-import io.ktor.client.call.body
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class VolumeViewModel @Inject constructor(
-    private val clientRepository: ClientRepository,
+    private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val volume = savedStateHandle.toRoute<Screen.Volume>()
-    private val client by lazy { clientRepository.current() }
 
     val name get() = volume.name
 
@@ -57,17 +46,15 @@ class VolumeViewModel @Inject constructor(
     init {
         Timber.d("VolumeViewModel init")
         loadData()
-        dataObserver()
-        resultObserver()
+        containersObserver()
         addCloseable { job.cancel() }
     }
 
     fun loadData() {
         viewModelScope.launch {
             data = runCatching {
-                client.get(
-                    Volumes.Inspect(name = volume.name)
-                ).body<Volume>().let(::UiVolume)
+                remoteRepository.inspectVolume(name = volume.name)
+                    .let(::UiVolume)
             }.onFailure {
                 Timber.e(it)
             }.asLoadData()
@@ -81,10 +68,11 @@ class VolumeViewModel @Inject constructor(
             result = LoadData.Loading
             result = runCatching {
                 when (operate) {
-                    Operate.Remove -> client.delete(
-                        Volumes.Remove(name = volume.name)
-                    )
+                    Operate.Remove -> remoteRepository.removeVolume(name = volume.name)
                 }
+            }.onSuccess {
+                if (!operate.isDestroyed) loadData()
+                remoteRepository.fetchVolumes()
             }.onFailure {
                 Timber.e(it)
             }.asLoadData { operate }
@@ -100,39 +88,13 @@ class VolumeViewModel @Inject constructor(
         }
     }
 
-    private fun dataObserver() {
+    private fun containersObserver() {
         viewModelScope.launch {
-            snapshotFlow { data }
-                .filterIsInstance<LoadData.Success<UiVolume>>()
-                .collectLatest {
-                    loadContainers(it.value.original)
-                }
-        }
-    }
-
-    private fun loadContainers(volume: Volume) {
-        viewModelScope.launch {
-            runCatching {
-                containers = client.get(
-                    Containers.All(
-                        filters = Containers.All.Filters(
-                            volume = listOf(volume.name)
-                        ).encodeJson()
-                    )
-                ).body<List<Container>>()
-                    .map(::UiContainer)
-            }.onFailure {
-                Timber.e(it)
-            }
-        }
-    }
-
-    private fun resultObserver() {
-        viewModelScope.launch {
-            snapshotFlow { result }
-                .filterIsInstance<LoadData.Success<Operate>>()
-                .collectLatest {
-                    if (!it.value.isDestroyed) loadData()
+            remoteRepository.containersFlow
+                .collectLatest { list ->
+                    containers = list.filter { container ->
+                        container.mounts.any { it.name == volume.name }
+                    }.map(::UiContainer)
                 }
         }
     }

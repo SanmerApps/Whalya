@@ -50,8 +50,6 @@ import dev.sanmer.whalya.ui.ktx.bottom
 import dev.sanmer.whalya.ui.ktx.navigatePopTo
 import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.HomeViewModel
-import dev.sanmer.whalya.viewmodel.HomeViewModel.Load.Default.setLoad
 import dev.sanmer.whalya.viewmodel.NetworkViewModel
 import dev.sanmer.whalya.viewmodel.NetworkViewModel.BottomSheet
 import dev.sanmer.whalya.viewmodel.NetworkViewModel.Operate
@@ -73,7 +71,6 @@ fun NetworkScreen(
             is LoadData.Success<Operate> -> {
                 if (result.value.isDestroyed) {
                     viewModel.update(BottomSheet.Closed)
-                    navController.setLoad(HomeViewModel.Load.Networks)
                     navController.navigateUp()
                 }
             }

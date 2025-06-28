@@ -65,6 +65,7 @@ fun ServersScreen(
                 ServersContent(
                     navController = navController,
                     servers = data.value,
+                    onSetClient = viewModel::setClient,
                     onPing = viewModel::ping,
                     contentPadding = contentPadding,
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -89,6 +90,7 @@ fun ServersScreen(
 private fun ServersContent(
     navController: NavController,
     servers: List<ServerEntity>,
+    onSetClient: (ServerEntity) -> Unit,
     onPing: (ServerEntity) -> Boolean,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
@@ -106,6 +108,7 @@ private fun ServersContent(
                 server = server,
                 onPing = onPing
             ) {
+                onSetClient(server)
                 navController.navigateSingleTopTo(Screen.Home(server.id, server.name))
             }
         }
