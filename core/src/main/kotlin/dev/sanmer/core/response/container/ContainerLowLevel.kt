@@ -208,7 +208,7 @@ data class ContainerLowLevel(
         @SerialName("LinkLocalIPv6PrefixLen")
         val linkLocalIPv6PrefixLen: Int,
         @SerialName("Ports")
-        val ports: Map<String, List<PortBinding>?> = emptyMap(),
+        val ports: Map<String, List<HostConfig.PortBinding>?> = emptyMap(),
         @SerialName("SandboxKey")
         val sandboxKey: String,
         @SerialName("SecondaryIPAddresses")
@@ -234,14 +234,6 @@ data class ContainerLowLevel(
         @SerialName("Networks")
         val networks: Map<String, ContainerConfig.Networking.EndpointSettings>
     ) {
-        @Serializable
-        data class PortBinding(
-            @SerialName("HostIp")
-            val hostIp: String,
-            @SerialName("HostPort")
-            val hostPort: String
-        )
-
         @Serializable
         data class Address(
             @SerialName("Addr")

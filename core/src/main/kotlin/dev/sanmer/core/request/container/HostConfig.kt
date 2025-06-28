@@ -1,6 +1,5 @@
 package dev.sanmer.core.request.container
 
-import dev.sanmer.core.response.container.ContainerLowLevel.NetworkSettings.PortBinding
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -227,6 +226,14 @@ data class HostConfig(
             None
         }
     }
+
+    @Serializable
+    data class PortBinding(
+        @SerialName("HostIp")
+        val hostIp: String,
+        @SerialName("HostPort")
+        val hostPort: String
+    )
 
     @Serializable
     data class RestartPolicy(
