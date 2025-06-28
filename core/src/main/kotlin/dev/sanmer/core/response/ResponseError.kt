@@ -12,7 +12,7 @@ data class ResponseError(
         suspend fun HttpResponse.error() = IllegalStateException(
             try {
                 body<ResponseError>().message
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
                 status.toString()
             }
         )

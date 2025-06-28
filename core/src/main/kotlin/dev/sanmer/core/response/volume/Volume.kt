@@ -33,14 +33,7 @@ data class Volume(
         Local,
 
         @SerialName("global")
-        Global;
-
-        override fun toString(): String {
-            return when (this) {
-                Local -> "local"
-                Global -> "global"
-            }
-        }
+        Global
     }
 
     @Serializable
