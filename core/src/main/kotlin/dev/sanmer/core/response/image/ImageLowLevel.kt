@@ -1,5 +1,6 @@
 package dev.sanmer.core.response.image
 
+import dev.sanmer.core.request.container.ContainerConfig
 import dev.sanmer.core.response.container.ContainerLowLevel
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
@@ -26,7 +27,7 @@ data class ImageLowLevel(
     @SerialName("Author")
     val author: String,
     @SerialName("Config")
-    val config: ContainerLowLevel.Config,
+    val config: Config,
     @SerialName("Architecture")
     val architecture: String,
     @SerialName("Variant")
@@ -44,6 +45,36 @@ data class ImageLowLevel(
     @SerialName("Metadata")
     val metadata: Metadata
 ) {
+    @Serializable
+    data class Config(
+        @SerialName("User")
+        val user: String = "",
+        @SerialName("ExposedPorts")
+        val exposedPorts: Map<String, ContainerConfig.ExposedPortValue> = emptyMap(),
+        @SerialName("Env")
+        val env: List<String> = emptyList(),
+        @SerialName("Cmd")
+        val cmd: List<String> = emptyList(),
+        @SerialName("Healthcheck")
+        val healthCheck: ContainerConfig.Health = ContainerConfig.Health(),
+        @SerialName("ArgsEscaped")
+        val argsEscaped: Boolean = false,
+        @SerialName("Volumes")
+        val volumes: Map<String, ContainerConfig.VolumeValue> = emptyMap(),
+        @SerialName("WorkingDir")
+        val workingDir: String = "",
+        @SerialName("Entrypoint")
+        val entryPoint: List<String> = emptyList(),
+        @SerialName("OnBuild")
+        val onBuild: List<String> = emptyList(),
+        @SerialName("Labels")
+        val labels: Map<String, String> = emptyMap(),
+        @SerialName("StopSignal")
+        val stopSignal: String = "",
+        @SerialName("Shell")
+        val shell: List<String> = emptyList()
+    )
+
     @Serializable
     data class RootFS(
         @SerialName("Type")
