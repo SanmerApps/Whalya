@@ -25,7 +25,7 @@ import io.ktor.serialization.kotlinx.json.json
 import okhttp3.OkHttpClient
 
 object Docker {
-    const val API_VERSION = "1.50"
+    const val API_VERSION = "1.51"
 
     fun client(
         baseUrl: String,
