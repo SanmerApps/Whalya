@@ -3,13 +3,11 @@ package dev.sanmer.whalya.ui.screens.inspect.container
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
@@ -17,25 +15,18 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import dev.sanmer.core.response.container.ContainerLog
@@ -43,6 +34,7 @@ import dev.sanmer.whalya.R
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.ui.component.Failed
 import dev.sanmer.whalya.ui.component.Loading
+import dev.sanmer.whalya.ui.component.SearchContent
 import dev.sanmer.whalya.ui.component.ansi.appendANSIOrDefault
 import dev.sanmer.whalya.ui.ktx.plus
 import org.koin.androidx.compose.koinViewModel
@@ -133,21 +125,6 @@ private fun BottomBar(
     onSearch: (String) -> Unit,
     navController: NavController
 ) {
-    var key by remember { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    DisposableEffect(isSearch) {
-        if (isSearch) {
-            focusRequester.requestFocus()
-            keyboardController?.show()
-        }
-        onDispose {
-            key = ""
-            keyboardController?.hide()
-        }
-    }
-
     BottomAppBar(
         actions = {
             IconButton(
@@ -166,18 +143,10 @@ private fun BottomBar(
             }
 
             if (isSearch) {
-                BasicTextField(
-                    value = key,
-                    onValueChange = {
-                        onSearch(it)
-                        key = it
-                    },
-                    textStyle = LocalTextStyle.current,
-                    modifier = Modifier
-                        .defaultMinSize(
-                            minWidth = OutlinedTextFieldDefaults.MinWidth
-                        )
-                        .focusRequester(focusRequester)
+                SearchContent(
+                    onSearch = onSearch,
+                    textStyle = MaterialTheme.typography.titleLarge
+                        .copy(fontWeight = FontWeight.Normal)
                 )
             } else {
                 IconButton(

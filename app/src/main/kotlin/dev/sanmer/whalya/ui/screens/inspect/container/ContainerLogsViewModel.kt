@@ -61,6 +61,7 @@ class ContainerLogsViewModel(
             data.getValue(emptyList()) { it }
         } else {
             toggleRunning()
+            search("")
             emptyList()
         }
     }
