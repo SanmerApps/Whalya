@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.core.Docker
 import dev.sanmer.whalya.BuildConfig
@@ -39,12 +38,12 @@ import dev.sanmer.whalya.ui.component.ValuesColumn
 import dev.sanmer.whalya.ui.ktx.navigateSingleTopTo
 import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.SettingsViewModel
 import kotlinx.datetime.TimeZone
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel(),
+    viewModel: SettingsViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

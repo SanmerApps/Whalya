@@ -1,26 +1,25 @@
-package dev.sanmer.whalya.viewmodel
+package dev.sanmer.whalya.ui.screens.settings
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.database.entity.ServerEntity
 import dev.sanmer.whalya.repository.DbRepository
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     private val dbRepository: DbRepository
 ) : ViewModel() {
     var servers by mutableStateOf<List<ServerEntity>>(emptyList())
         private set
 
+    private val logger = Logger.Android("SettingsViewModel")
+
     init {
-        Timber.d("SettingsViewModel init")
+        logger.d("init")
         dbObserver()
     }
 

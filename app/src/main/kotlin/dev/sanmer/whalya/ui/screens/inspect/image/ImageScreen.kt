@@ -46,7 +46,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.core.Labels
 import dev.sanmer.whalya.R
@@ -70,14 +69,14 @@ import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.ktx.setText
 import dev.sanmer.whalya.ui.ktx.surface
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.ImageViewModel
-import dev.sanmer.whalya.viewmodel.ImageViewModel.BottomSheet
-import dev.sanmer.whalya.viewmodel.ImageViewModel.Operate
+import dev.sanmer.whalya.ui.screens.inspect.image.ImageViewModel.BottomSheet
+import dev.sanmer.whalya.ui.screens.inspect.image.ImageViewModel.Operate
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ImageScreen(
-    viewModel: ImageViewModel = hiltViewModel(),
+    viewModel: ImageViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

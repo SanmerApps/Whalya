@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "server")
 data class ServerEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    val id: Long,
     val baseUrl: String,
     val caCert: String,
     val clientCert: String,

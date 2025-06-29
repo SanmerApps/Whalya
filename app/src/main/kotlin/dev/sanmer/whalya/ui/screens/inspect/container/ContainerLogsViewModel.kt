@@ -1,4 +1,4 @@
-package dev.sanmer.whalya.viewmodel
+package dev.sanmer.whalya.ui.screens.inspect.container
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,8 +7,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.core.response.container.ContainerLog
+import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.LoadData.Default.getValue
@@ -19,12 +19,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-@HiltViewModel
-class ContainerLogsViewModel @Inject constructor(
+class ContainerLogsViewModel(
     private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -42,8 +39,10 @@ class ContainerLogsViewModel @Inject constructor(
     private var cache = emptyList<ContainerLog>()
     private val keyFlow = MutableStateFlow("")
 
+    private val logger = Logger.Android("ContainerLogsViewModel")
+
     init {
-        Timber.d("ContainerLogsViewModel init")
+        logger.d("init")
         loadData()
         keyObserver()
     }
@@ -77,8 +76,7 @@ class ContainerLogsViewModel @Inject constructor(
                     remoteRepository.containerLogs(id = containerLogs.id)
                         .asReversed()
                 }.onFailure {
-                    isRunning = false
-                    Timber.e(it)
+                    logger.e(it)
                 }.asLoadData()
 
                 delay(1000.milliseconds)

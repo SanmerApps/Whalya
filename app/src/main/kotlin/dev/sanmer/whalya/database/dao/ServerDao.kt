@@ -20,13 +20,13 @@ interface ServerDao {
     suspend fun getAll(): List<ServerEntity>
 
     @Insert
-    suspend fun insert(entity: ServerEntity)
+    suspend fun insert(server: ServerEntity)
 
     @Update
-    suspend fun update(entity: ServerEntity)
+    suspend fun update(server: ServerEntity)
 
     @Delete
-    suspend fun delete(entity: ServerEntity)
+    suspend fun delete(server: ServerEntity)
 
     @Query("DELETE FROM server WHERE id = :id")
     suspend fun deleteById(id: Long)

@@ -30,7 +30,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.model.LoadData
@@ -50,13 +49,13 @@ import dev.sanmer.whalya.ui.ktx.bottom
 import dev.sanmer.whalya.ui.ktx.navigatePopTo
 import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.NetworkViewModel
-import dev.sanmer.whalya.viewmodel.NetworkViewModel.BottomSheet
-import dev.sanmer.whalya.viewmodel.NetworkViewModel.Operate
+import dev.sanmer.whalya.ui.screens.inspect.network.NetworkViewModel.BottomSheet
+import dev.sanmer.whalya.ui.screens.inspect.network.NetworkViewModel.Operate
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun NetworkScreen(
-    viewModel: NetworkViewModel = hiltViewModel(),
+    viewModel: NetworkViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

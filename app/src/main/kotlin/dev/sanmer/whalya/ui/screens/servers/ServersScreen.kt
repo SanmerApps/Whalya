@@ -24,7 +24,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.database.entity.ServerEntity
@@ -40,11 +39,11 @@ import dev.sanmer.whalya.ui.component.WithIcon
 import dev.sanmer.whalya.ui.ktx.navigateSingleTopTo
 import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.ServersViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ServersScreen(
-    viewModel: ServersViewModel = hiltViewModel(),
+    viewModel: ServersViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -65,7 +64,7 @@ fun ServersScreen(
                 ServersContent(
                     navController = navController,
                     servers = data.value,
-                    onSetClient = viewModel::setClient,
+                    onSetServer = { viewModel.server = it },
                     onPing = viewModel::ping,
                     contentPadding = contentPadding,
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -90,7 +89,7 @@ fun ServersScreen(
 private fun ServersContent(
     navController: NavController,
     servers: List<ServerEntity>,
-    onSetClient: (ServerEntity) -> Unit,
+    onSetServer: (ServerEntity) -> Unit,
     onPing: (ServerEntity) -> Boolean,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
@@ -108,7 +107,7 @@ private fun ServersContent(
                 server = server,
                 onPing = onPing
             ) {
-                onSetClient(server)
+                onSetServer(server)
                 navController.navigateSingleTopTo(Screen.Home(server.id, server.name))
             }
         }

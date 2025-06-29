@@ -1,4 +1,4 @@
-package dev.sanmer.whalya.viewmodel
+package dev.sanmer.whalya.ui.screens.home
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -8,11 +8,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.core.response.container.ContainerPruned
 import dev.sanmer.core.response.image.ImagePruned
 import dev.sanmer.core.response.network.NetworkPruned
 import dev.sanmer.core.response.volume.VolumePruned
+import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.ui.home.UiContainer
@@ -23,11 +23,8 @@ import dev.sanmer.whalya.model.ui.home.UiVolume
 import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -52,8 +49,10 @@ class HomeViewModel @Inject constructor(
 
     private val pruned = mutableStateMapOf<Prune, LoadData<PruneResult>>()
 
+    private val logger = Logger.Android("HomeViewModel")
+
     init {
-        Timber.d("HomeViewModel init")
+        logger.d("init")
         remoteObserver()
     }
 
@@ -71,35 +70,35 @@ class HomeViewModel @Inject constructor(
                         version = remoteRepository.version()
                     )
                 }.onFailure {
-                    Timber.e(it)
+                    logger.e(it)
                 }.asLoadData()
 
                 Load.Containers -> runCatching {
                     remoteRepository.fetchContainers()
                 }.onFailure {
                     containers = LoadData.Failure(it)
-                    Timber.e(it)
+                    logger.e(it)
                 }
 
                 Load.Images -> runCatching {
                     remoteRepository.fetchImages()
                 }.onFailure {
                     images = LoadData.Failure(it)
-                    Timber.e(it)
+                    logger.e(it)
                 }
 
                 Load.Networks -> runCatching {
                     remoteRepository.fetchNetworks()
                 }.onFailure {
                     networks = LoadData.Failure(it)
-                    Timber.e(it)
+                    logger.e(it)
                 }
 
                 Load.Volumes -> runCatching {
                     remoteRepository.fetchVolumes()
                 }.onFailure {
                     volumes = LoadData.Failure(it)
-                    Timber.e(it)
+                    logger.e(it)
                 }.asLoadData()
             }
         }
@@ -121,7 +120,7 @@ class HomeViewModel @Inject constructor(
                     Prune.Volumes -> remoteRepository.pruneVolumes().let(::PruneResult)
                 }
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }.asLoadData()
         }
     }

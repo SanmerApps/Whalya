@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.ktx.messageOrName
@@ -51,19 +50,19 @@ import dev.sanmer.whalya.ui.component.AnimatedIcon
 import dev.sanmer.whalya.ui.component.LabelText
 import dev.sanmer.whalya.ui.ktx.bottom
 import dev.sanmer.whalya.ui.ktx.surface
+import dev.sanmer.whalya.ui.screens.home.HomeViewModel.Prune
+import dev.sanmer.whalya.ui.screens.home.HomeViewModel.PruneResult
 import dev.sanmer.whalya.ui.screens.home.pages.ContainersPage
 import dev.sanmer.whalya.ui.screens.home.pages.ImagesPage
 import dev.sanmer.whalya.ui.screens.home.pages.NetworksPage
 import dev.sanmer.whalya.ui.screens.home.pages.SystemPage
 import dev.sanmer.whalya.ui.screens.home.pages.VolumesPage
-import dev.sanmer.whalya.viewmodel.HomeViewModel
-import dev.sanmer.whalya.viewmodel.HomeViewModel.Prune
-import dev.sanmer.whalya.viewmodel.HomeViewModel.PruneResult
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = koinViewModel(),
     navController: NavController
 ) {
     val pagerState = rememberPagerState { 5 }

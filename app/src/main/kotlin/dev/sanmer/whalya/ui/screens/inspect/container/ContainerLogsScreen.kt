@@ -37,7 +37,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.core.response.container.ContainerLog
 import dev.sanmer.whalya.R
@@ -46,11 +45,11 @@ import dev.sanmer.whalya.ui.component.Failed
 import dev.sanmer.whalya.ui.component.Loading
 import dev.sanmer.whalya.ui.component.ansi.appendANSIOrDefault
 import dev.sanmer.whalya.ui.ktx.plus
-import dev.sanmer.whalya.viewmodel.ContainerLogsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ContainerLogsScreen(
-    viewModel: ContainerLogsViewModel = hiltViewModel(),
+    viewModel: ContainerLogsViewModel = koinViewModel(),
     navController: NavController
 ) {
     BackHandler(
