@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.model.LoadData
@@ -31,11 +30,11 @@ import dev.sanmer.whalya.ui.component.Loading
 import dev.sanmer.whalya.ui.component.ValuesColumn
 import dev.sanmer.whalya.ui.component.WithIcon
 import dev.sanmer.whalya.ui.ktx.plus
-import dev.sanmer.whalya.viewmodel.ContainerStatsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ContainerStatsScreen(
-    viewModel: ContainerStatsViewModel = hiltViewModel(),
+    viewModel: ContainerStatsViewModel = koinViewModel(),
     navController: NavController
 ) {
     Scaffold(

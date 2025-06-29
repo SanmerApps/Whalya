@@ -28,7 +28,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.model.LoadData
@@ -47,13 +46,13 @@ import dev.sanmer.whalya.ui.ktx.bottom
 import dev.sanmer.whalya.ui.ktx.navigatePopTo
 import dev.sanmer.whalya.ui.ktx.plus
 import dev.sanmer.whalya.ui.main.Screen
-import dev.sanmer.whalya.viewmodel.VolumeViewModel
-import dev.sanmer.whalya.viewmodel.VolumeViewModel.BottomSheet
-import dev.sanmer.whalya.viewmodel.VolumeViewModel.Operate
+import dev.sanmer.whalya.ui.screens.inspect.volume.VolumeViewModel.BottomSheet
+import dev.sanmer.whalya.ui.screens.inspect.volume.VolumeViewModel.Operate
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun VolumeScreen(
-    viewModel: VolumeViewModel = hiltViewModel(),
+    viewModel: VolumeViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

@@ -7,7 +7,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import timber.log.Timber
 import java.io.StringReader
 
 private val baseColors = arrayOf(
@@ -158,7 +157,6 @@ private fun StringReader.parseANSI(): List<Pair<SpanStyle, String>> {
 private fun String.parseANSIOrNull() = try {
     reader().parseANSI()
 } catch (e: Throwable) {
-    Timber.w(e)
     null
 }
 

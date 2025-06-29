@@ -1,4 +1,4 @@
-package dev.sanmer.whalya.viewmodel
+package dev.sanmer.whalya.ui.screens.inspect.container
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,29 +7,31 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.core.response.container.Container
+import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
+import dev.sanmer.whalya.model.LoadData.Default.getOrThrow
 import dev.sanmer.whalya.model.ui.home.UiContainer.Default.shortId
-import dev.sanmer.whalya.model.ui.inspect.UiNetwork
+import dev.sanmer.whalya.model.ui.inspect.UiContainer
 import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class NetworkViewModel @Inject constructor(
+class ContainerViewModel(
     private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val network = savedStateHandle.toRoute<Screen.Network>()
+    private val container = savedStateHandle.toRoute<Screen.Container>()
 
-    var name by mutableStateOf(network.id.shortId())
+    var name by mutableStateOf(container.id.shortId())
         private set
 
-    var data by mutableStateOf<LoadData<UiNetwork>>(LoadData.Loading)
+    var data by mutableStateOf<LoadData<UiContainer>>(LoadData.Loading)
+        private set
+
+    var state by mutableStateOf(Container.State.Created)
         private set
 
     var bottomSheet by mutableStateOf(BottomSheet.Closed)
@@ -40,8 +42,10 @@ class NetworkViewModel @Inject constructor(
 
     private var job = SupervisorJob()
 
+    private val logger = Logger.Android("ContainerViewModel")
+
     init {
-        Timber.d("NetworkViewModel init")
+        logger.d("init")
         loadData()
         addCloseable { job.cancel() }
     }
@@ -49,13 +53,14 @@ class NetworkViewModel @Inject constructor(
     fun loadData() {
         viewModelScope.launch {
             data = runCatching {
-                remoteRepository.inspectNetwork(id = network.id)
-                    .let(::UiNetwork)
+                remoteRepository.inspectContainer(id = container.id)
+                    .let(::UiContainer)
                     .also {
                         name = it.name
+                        state = it.state
                     }
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }.asLoadData()
         }
     }
@@ -67,13 +72,19 @@ class NetworkViewModel @Inject constructor(
             result = LoadData.Loading
             result = runCatching {
                 when (operate) {
-                    Operate.Remove -> remoteRepository.removeNetwork(id = network.id)
+                    Operate.Stop -> remoteRepository.stopContainer(id = container.id)
+                    Operate.Start -> remoteRepository.startContainer(id = container.id)
+                    Operate.Pause -> remoteRepository.pauseContainer(id = container.id)
+                    Operate.Unpause -> remoteRepository.unpauseContainer(id = container.id)
+                    Operate.Restart -> remoteRepository.restartContainer(id = container.id)
+                    Operate.Up -> remoteRepository.upContainer(container = data.getOrThrow().original)
+                    Operate.Remove -> remoteRepository.removeContainer(id = container.id)
                 }
             }.onSuccess {
                 if (!operate.isDestroyed) loadData()
-                remoteRepository.fetchNetworks()
+                remoteRepository.fetchContainers()
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }.asLoadData { operate }
         }
     }
@@ -94,8 +105,14 @@ class NetworkViewModel @Inject constructor(
     }
 
     enum class Operate {
+        Stop,
+        Start,
+        Pause,
+        Unpause,
+        Restart,
+        Up,
         Remove;
 
-        val isDestroyed inline get() = this == Remove
+        val isDestroyed inline get() = this == Up || this == Remove
     }
 }

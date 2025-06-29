@@ -56,7 +56,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.core.JsonCompat.encodeJson
 import dev.sanmer.core.response.system.SystemVersion
@@ -66,15 +65,15 @@ import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.ui.component.CheckIcon
 import dev.sanmer.whalya.ui.ktx.copy
 import dev.sanmer.whalya.ui.ktx.horizontal
-import dev.sanmer.whalya.viewmodel.AddServerViewModel
-import dev.sanmer.whalya.viewmodel.AddServerViewModel.Control
-import dev.sanmer.whalya.viewmodel.AddServerViewModel.MutualTLS
+import dev.sanmer.whalya.ui.screens.servers.AddServerViewModel.Control
+import dev.sanmer.whalya.ui.screens.servers.AddServerViewModel.MutualTLS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddServerScreen(
-    viewModel: AddServerViewModel = hiltViewModel(),
+    viewModel: AddServerViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

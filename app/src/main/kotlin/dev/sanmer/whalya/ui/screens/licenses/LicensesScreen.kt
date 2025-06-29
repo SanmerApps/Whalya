@@ -1,16 +1,19 @@
 package dev.sanmer.whalya.ui.screens.licenses
 
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -22,8 +25,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.model.LoadData
@@ -31,21 +34,32 @@ import dev.sanmer.whalya.model.ui.UiLicense
 import dev.sanmer.whalya.ui.component.Failed
 import dev.sanmer.whalya.ui.component.LabelText
 import dev.sanmer.whalya.ui.component.Loading
+import dev.sanmer.whalya.ui.component.SearchContent
 import dev.sanmer.whalya.ui.component.ValueText
 import dev.sanmer.whalya.ui.component.ValuesColumn
 import dev.sanmer.whalya.ui.ktx.plus
-import dev.sanmer.whalya.viewmodel.LicenseViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LicensesScreen(
-    viewModel: LicenseViewModel = hiltViewModel(),
+    viewModel: LicensesViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
+    BackHandler(
+        enabled = viewModel.isSearch,
+        onBack = viewModel::toggleSearch
+    )
+
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopBar(
+                isSearch = viewModel.isSearch,
+                onToggleSearch = viewModel::toggleSearch,
+                enabledSearch = viewModel.data.isSuccess,
+                onSearch = viewModel::search,
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
@@ -135,19 +149,52 @@ private fun LicenseItem(
 
 @Composable
 private fun TopBar(
+    isSearch: Boolean,
+    onToggleSearch: () -> Unit,
+    enabledSearch: Boolean,
+    onSearch: (String) -> Unit,
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
-        title = { Text(text = stringResource(R.string.license_title)) },
+        title = {
+            if (isSearch) {
+                SearchContent(
+                    onSearch = onSearch,
+                    textStyle = MaterialTheme.typography.titleLarge
+                        .copy(fontWeight = FontWeight.Normal)
+                )
+            } else {
+                Text(text = stringResource(R.string.license_title))
+            }
+        },
         navigationIcon = {
             IconButton(
-                onClick = { navController.navigateUp() }
+                onClick = {
+                    if (isSearch) {
+                        onToggleSearch()
+                    } else {
+                        navController.navigateUp()
+                    }
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.arrow_left),
                     contentDescription = null
                 )
+            }
+        },
+        actions = {
+            if (!isSearch) {
+                IconButton(
+                    onClick = onToggleSearch,
+                    enabled = enabledSearch
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.search),
+                        contentDescription = null
+                    )
+                }
             }
         },
         scrollBehavior = scrollBehavior

@@ -1,4 +1,4 @@
-package dev.sanmer.whalya.viewmodel
+package dev.sanmer.whalya.ui.screens.servers
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
@@ -8,12 +8,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.core.Docker
 import dev.sanmer.core.Docker.get
 import dev.sanmer.core.resource.System
 import dev.sanmer.core.response.system.SystemVersion
 import dev.sanmer.whalya.Const
+import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.R
 import dev.sanmer.whalya.database.entity.ServerEntity
 import dev.sanmer.whalya.model.LoadData
@@ -24,11 +24,8 @@ import dev.sanmer.whalya.repository.DbRepository
 import dev.sanmer.whalya.ui.main.Screen
 import io.ktor.client.call.body
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class AddServerViewModel @Inject constructor(
+class AddServerViewModel(
     private val dbRepository: DbRepository,
     private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
@@ -52,8 +49,10 @@ class AddServerViewModel @Inject constructor(
     var control by mutableStateOf(Control.Edit)
         private set
 
+    private val logger = Logger.Android("AddServerViewModel")
+
     init {
-        Timber.d("AddServerViewModel init")
+        logger.d("init")
         dbObserver()
     }
 
@@ -89,7 +88,7 @@ class AddServerViewModel @Inject constructor(
                 control = Control.Connected
             }.onFailure {
                 control = Control.Closed
-                Timber.e(it)
+                logger.e(it)
             }.asLoadData()
         }
     }
@@ -98,6 +97,7 @@ class AddServerViewModel @Inject constructor(
         viewModelScope.launch {
             val version = data.getOrThrow()
             val value = ServerEntity(
+                id = if (isEdit) addServer.id else 0,
                 baseUrl = input.apiEndpoint,
                 caCert = input.caCert,
                 clientCert = input.clientCert,
@@ -110,14 +110,14 @@ class AddServerViewModel @Inject constructor(
 
             runCatching {
                 if (isEdit) {
-                    dbRepository.updateServer(value.copy(id = addServer.id))
+                    dbRepository.updateServer(value)
                 } else {
                     dbRepository.insertServer(value)
                 }
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }
         }
     }
@@ -130,7 +130,7 @@ class AddServerViewModel @Inject constructor(
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }
         }
     }

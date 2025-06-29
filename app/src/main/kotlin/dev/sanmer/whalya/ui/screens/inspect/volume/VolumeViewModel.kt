@@ -1,4 +1,4 @@
-package dev.sanmer.whalya.viewmodel
+package dev.sanmer.whalya.ui.screens.inspect.volume
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.ui.home.UiContainer
@@ -17,11 +17,8 @@ import dev.sanmer.whalya.ui.main.Screen
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class VolumeViewModel @Inject constructor(
+class VolumeViewModel(
     private val remoteRepository: RemoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -43,8 +40,10 @@ class VolumeViewModel @Inject constructor(
 
     private var job = SupervisorJob()
 
+    private val logger = Logger.Android("VolumeViewModel")
+
     init {
-        Timber.d("VolumeViewModel init")
+        logger.d("init")
         loadData()
         containersObserver()
         addCloseable { job.cancel() }
@@ -56,7 +55,7 @@ class VolumeViewModel @Inject constructor(
                 remoteRepository.inspectVolume(name = volume.name)
                     .let(::UiVolume)
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }.asLoadData()
         }
     }
@@ -74,7 +73,7 @@ class VolumeViewModel @Inject constructor(
                 if (!operate.isDestroyed) loadData()
                 remoteRepository.fetchVolumes()
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }.asLoadData { operate }
         }
     }
