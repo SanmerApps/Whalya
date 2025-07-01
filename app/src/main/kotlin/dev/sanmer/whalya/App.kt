@@ -1,9 +1,10 @@
 package dev.sanmer.whalya
 
 import android.app.Application
-import dev.sanmer.whalya.di.database
-import dev.sanmer.whalya.di.repositories
-import dev.sanmer.whalya.di.viewModels
+import dev.sanmer.whalya.di.Database
+import dev.sanmer.whalya.di.Observers
+import dev.sanmer.whalya.di.Repositories
+import dev.sanmer.whalya.di.ViewModels
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -16,7 +17,7 @@ class App : Application() {
         startKoin {
             androidLogger()
             androidContext(this@App)
-            modules(database, repositories, viewModels)
+            modules(Database, Repositories, Observers, ViewModels)
         }
     }
 }

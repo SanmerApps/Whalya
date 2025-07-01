@@ -12,6 +12,7 @@ import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.LoadData.Default.getValue
+import dev.sanmer.whalya.observer.ForegroundObserver
 import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.ui.main.Screen
 import kotlinx.coroutines.delay
@@ -23,6 +24,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class ContainerLogsViewModel(
     private val remoteRepository: RemoteRepository,
+    private val foregroundObserver: ForegroundObserver,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val containerLogs = savedStateHandle.toRoute<Screen.ContainerLogs>()
@@ -30,7 +32,7 @@ class ContainerLogsViewModel(
     var data by mutableStateOf<LoadData<List<ContainerLog>>>(LoadData.Loading)
         private set
 
-    var isRunning by mutableStateOf(true)
+    var isRunning by mutableStateOf(false)
         private set
 
     var isSearch by mutableStateOf(false)
@@ -43,7 +45,7 @@ class ContainerLogsViewModel(
 
     init {
         logger.d("init")
-        loadData()
+        foregroundObserver()
         keyObserver()
     }
 
@@ -82,6 +84,16 @@ class ContainerLogsViewModel(
 
                 delay(1000.milliseconds)
             }
+        }
+    }
+
+    private fun foregroundObserver() {
+        viewModelScope.launch {
+            foregroundObserver.isForeground
+                .collectLatest {
+                    logger.d("isForeground = $it")
+                    toggleRunning()
+                }
         }
     }
 

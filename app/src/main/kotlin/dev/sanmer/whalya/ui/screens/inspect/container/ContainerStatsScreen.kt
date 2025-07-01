@@ -41,7 +41,7 @@ fun ContainerStatsScreen(
         bottomBar = {
             BottomBar(
                 isRunning = viewModel.isRunning,
-                onClick = { viewModel.update { !it } },
+                onClick = viewModel::toggleRunning,
                 navController = navController
             )
         }

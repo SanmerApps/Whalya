@@ -10,7 +10,7 @@ import dev.sanmer.whalya.repository.RemoteRepository
 import dev.sanmer.whalya.repository.RemoteRepositoryImpl
 import org.koin.dsl.module
 
-val repositories = module {
+val Repositories = module {
     single<DbRepository> {
         DbRepositoryImpl(get())
     }

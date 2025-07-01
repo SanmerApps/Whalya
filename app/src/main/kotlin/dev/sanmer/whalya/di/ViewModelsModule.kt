@@ -14,7 +14,7 @@ import dev.sanmer.whalya.ui.screens.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-val viewModels = module {
+val ViewModels = module {
     viewModelOf(::ServersViewModel)
     viewModelOf(::AddServerViewModel)
     viewModelOf(::SettingsViewModel)

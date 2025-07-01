@@ -5,7 +5,7 @@ import dev.sanmer.whalya.database.AppDatabase
 import dev.sanmer.whalya.ktx.deviceProtectedContext
 import org.koin.dsl.module
 
-val database = module {
+val Database = module {
     single {
         AppDatabase.build(get<Context>().deviceProtectedContext)
     }
