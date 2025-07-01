@@ -19,15 +19,18 @@ import dev.sanmer.whalya.database.entity.ServerEntity
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.model.LoadData.Default.asLoadData
 import dev.sanmer.whalya.model.LoadData.Default.getOrThrow
+import dev.sanmer.whalya.observer.NetworkObserver
 import dev.sanmer.whalya.repository.ClientRepository
 import dev.sanmer.whalya.repository.DbRepository
 import dev.sanmer.whalya.ui.main.Screen
 import io.ktor.client.call.body
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class AddServerViewModel(
     private val dbRepository: DbRepository,
     private val clientRepository: ClientRepository,
+    private val networkObserver: NetworkObserver,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val addServer = savedStateHandle.toRoute<Screen.AddServer>()
@@ -53,6 +56,7 @@ class AddServerViewModel(
 
     init {
         logger.d("init")
+        networkObserver()
         dbObserver()
     }
 
@@ -135,6 +139,15 @@ class AddServerViewModel(
         }
     }
 
+    private fun networkObserver() {
+        viewModelScope.launch {
+            networkObserver.state
+                .collectLatest {
+                    control = if (!it.isAvailable) Control.NetworkUnavailable else Control.Edit
+                }
+        }
+    }
+
     private fun dbObserver() {
         viewModelScope.launch {
             dbRepository.getServerByIdAsFlow(addServer.id)
@@ -171,16 +184,17 @@ class AddServerViewModel(
     }
 
     enum class Control {
+        NetworkUnavailable,
         Edit,
         Connecting,
         Closed,
         Connected,
         Saved;
 
+        val isNetworkUnavailable inline get() = this == NetworkUnavailable
         val isEdit inline get() = this == Edit
         val isConnecting inline get() = this == Connecting
-        val isClosed inline get() = this == Closed
-        val isConnected inline get() = this == Connected
         val isSaved inline get() = this == Saved
+        val isNoEdit inline get() = this == Closed || this == Connected || this == Saved
     }
 }

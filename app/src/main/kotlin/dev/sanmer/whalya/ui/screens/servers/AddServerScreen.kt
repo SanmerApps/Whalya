@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -86,7 +87,7 @@ fun AddServerScreen(
     }
 
     BackHandler(
-        enabled = with(viewModel.control) { isClosed || isConnected },
+        enabled = viewModel.control.isNoEdit,
         onBack = { viewModel.update(Control.Edit) }
     )
 
@@ -112,17 +113,17 @@ fun AddServerScreen(
         }
     ) { contentPadding ->
         Crossfade(
-            targetState = viewModel.control.isEdit || viewModel.control.isConnecting
-        ) { isLoading ->
-            if (isLoading) {
-                AddServerContent(
+            targetState = viewModel.control
+        ) { control ->
+            if (control.isNoEdit) {
+                ConnectContent(
                     viewModel = viewModel,
                     modifier = Modifier
                         .nestedScroll(scrollBehavior.nestedScrollConnection)
                         .padding(contentPadding)
                 )
             } else {
-                ConnectContent(
+                AddServerContent(
                     viewModel = viewModel,
                     modifier = Modifier
                         .nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -395,7 +396,7 @@ private fun TopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    if (control.isClosed || control.isConnected) {
+                    if (control.isNoEdit) {
                         setControl(Control.Edit)
                     } else {
                         if (isImeVisible) keyboardController?.hide()
@@ -440,21 +441,23 @@ private fun ActionButton(
             if (isImeVisible) keyboardController?.hide()
             when (control) {
                 Control.Edit -> onConnect()
-                Control.Connecting -> {}
                 Control.Closed -> setControl(Control.Edit)
                 Control.Connected -> onSave()
-                Control.Saved -> {}
+                else -> {}
             }
-        }
+        },
+        containerColor = if (control.isNetworkUnavailable)
+            MaterialTheme.colorScheme.errorContainer
+        else
+            FloatingActionButtonDefaults.containerColor
     ) {
         Icon(
             painter = painterResource(
                 when (control) {
-                    Control.Edit -> R.drawable.plug_connected
-                    Control.Connecting -> R.drawable.plug_connected
+                    Control.NetworkUnavailable -> R.drawable.cloud_off
+                    Control.Edit, Control.Connecting -> R.drawable.plug_connected
                     Control.Closed -> R.drawable.plug_connected_x
-                    Control.Connected -> R.drawable.device_floppy
-                    Control.Saved -> R.drawable.device_floppy
+                    Control.Connected, Control.Saved -> R.drawable.device_floppy
                 }
             ),
             contentDescription = null

@@ -8,8 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -56,7 +58,10 @@ fun ServersScreen(
             )
         },
         floatingActionButton = {
-            ActionButton { navController.navigateSingleTopTo(Screen.AddServer()) }
+            ActionButton(
+                isNetworkAvailable = viewModel.isNetworkAvailable,
+                onClick = { navController.navigateSingleTopTo(Screen.AddServer()) }
+            )
         }
     ) { contentPadding ->
         when (val data = viewModel.data) {
@@ -197,13 +202,23 @@ private fun TopBar(
 
 @Composable
 private fun ActionButton(
+    isNetworkAvailable: Boolean,
     onClick: () -> Unit
 ) {
     FloatingActionButton(
-        onClick = onClick
+        onClick = { if (isNetworkAvailable) onClick() },
+        containerColor = if (isNetworkAvailable)
+            FloatingActionButtonDefaults.containerColor
+        else
+            MaterialTheme.colorScheme.errorContainer
     ) {
         Icon(
-            painter = painterResource(R.drawable.cloud_plus),
+            painter = painterResource(
+                if (isNetworkAvailable)
+                    R.drawable.cloud_plus
+                else
+                    R.drawable.cloud_off
+            ),
             contentDescription = null
         )
     }

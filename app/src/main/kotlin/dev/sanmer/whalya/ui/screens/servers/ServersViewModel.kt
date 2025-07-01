@@ -12,15 +12,21 @@ import dev.sanmer.core.response.system.SystemVersion
 import dev.sanmer.whalya.Logger
 import dev.sanmer.whalya.database.entity.ServerEntity
 import dev.sanmer.whalya.model.LoadData
+import dev.sanmer.whalya.observer.NetworkObserver
 import dev.sanmer.whalya.repository.ClientRepository
 import dev.sanmer.whalya.repository.DbRepository
 import io.ktor.client.call.body
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ServersViewModel(
     private val dbRepository: DbRepository,
-    private val clientRepository: ClientRepository
+    private val clientRepository: ClientRepository,
+    private val networkObserver: NetworkObserver
 ) : ViewModel() {
+    var isNetworkAvailable by mutableStateOf(true)
+        private set
+
     var data by mutableStateOf<LoadData<List<ServerEntity>>>(LoadData.Loading)
         private set
 
@@ -32,14 +38,27 @@ class ServersViewModel(
 
     init {
         logger.d("init")
+        networkObserver()
         dbObserver()
     }
 
     fun ping(server: ServerEntity): Boolean {
         viewModelScope.launch {
-            if (pings[server.id] != true) update(server)
+            if (pings[server.id] != true && isNetworkAvailable) {
+                update(server)
+            }
         }
         return pings.getOrDefault(server.id, false)
+    }
+
+    private fun networkObserver() {
+        viewModelScope.launch {
+            networkObserver.state
+                .collectLatest {
+                    isNetworkAvailable = it.isAvailable
+                    logger.d("Network: $it")
+                }
+        }
     }
 
     private fun dbObserver() {
