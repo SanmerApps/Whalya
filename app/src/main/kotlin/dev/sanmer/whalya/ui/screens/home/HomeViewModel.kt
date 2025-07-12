@@ -114,10 +114,25 @@ class HomeViewModel(
         viewModelScope.launch {
             pruned[target] = runCatching {
                 when (target) {
-                    Prune.Containers -> remoteRepository.pruneContainers().let(::PruneResult)
-                    Prune.Images -> remoteRepository.pruneImages().let(::PruneResult)
-                    Prune.Networks -> remoteRepository.pruneNetworks().let(::PruneResult)
-                    Prune.Volumes -> remoteRepository.pruneVolumes().let(::PruneResult)
+                    Prune.Containers -> remoteRepository.pruneContainers().let {
+                        if (it.containersDeleted.isNotEmpty()) remoteRepository.fetchContainers()
+                        PruneResult(it)
+                    }
+
+                    Prune.Images -> remoteRepository.pruneImages().let {
+                        if (it.imagesDeleted.isNotEmpty()) remoteRepository.fetchImages()
+                        PruneResult(it)
+                    }
+
+                    Prune.Networks -> remoteRepository.pruneNetworks().let {
+                        if (it.networksDeleted.isNotEmpty()) remoteRepository.fetchNetworks()
+                        PruneResult(it)
+                    }
+
+                    Prune.Volumes -> remoteRepository.pruneVolumes().let {
+                        if (it.volumesDeleted.isNotEmpty()) remoteRepository.fetchVolumes()
+                        PruneResult(it)
+                    }
                 }
             }.onFailure {
                 logger.e(it)
