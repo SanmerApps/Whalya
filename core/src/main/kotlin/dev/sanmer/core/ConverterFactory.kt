@@ -14,7 +14,11 @@ import io.ktor.utils.io.readUTF8Line
 import kotlin.reflect.typeOf
 
 internal object ConverterFactory {
-    suspend fun ContainerLog.Default.fromMultiplexed(
+    val LOG_RAW = ContentType("application", "vnd.docker.raw-stream")
+    val LOG_MULTIPLEXED = ContentType("application", "vnd.docker.multiplexed-stream")
+    const val MULTIPLEXED_BLOCK_SIZE = 8
+
+    suspend fun logFromMultiplexed(
         channel: ByteReadChannel,
         use: (ContainerLog) -> Unit
     ) {
@@ -41,7 +45,7 @@ internal object ConverterFactory {
         }
     }
 
-    suspend fun ContainerLog.Default.fromRaw(
+    suspend fun logFromRaw(
         channel: ByteReadChannel,
         use: (ContainerLog) -> Unit
     ) {
@@ -69,8 +73,8 @@ internal object ConverterFactory {
                 content: ByteReadChannel
             ) = if (typeInfo.kotlinType == typeOf<List<ContainerLog>>()) buildList<ContainerLog> {
                 when (contentType) {
-                    ContainerLog.RAW -> ContainerLog.fromRaw(content, ::add)
-                    ContainerLog.MULTIPLEXED -> ContainerLog.fromMultiplexed(content, ::add)
+                    LOG_RAW -> logFromRaw(content, ::add)
+                    LOG_MULTIPLEXED -> logFromMultiplexed(content, ::add)
                 }
             } else null
 
@@ -83,4 +87,7 @@ internal object ConverterFactory {
 
         }
     )
+
+    fun ContentNegotiationConfig.rawContainerLog() = containerLog(LOG_RAW)
+    fun ContentNegotiationConfig.multiplexedContainerLog() = containerLog(LOG_MULTIPLEXED)
 }

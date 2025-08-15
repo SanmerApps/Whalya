@@ -1,9 +1,9 @@
 package dev.sanmer.core
 
 import android.util.Log
-import dev.sanmer.core.ConverterFactory.containerLog
-import dev.sanmer.core.response.ResponseError.Default.error
-import dev.sanmer.core.response.container.ContainerLog
+import dev.sanmer.core.ConverterFactory.multiplexedContainerLog
+import dev.sanmer.core.ConverterFactory.rawContainerLog
+import dev.sanmer.core.ktx.error
 import dev.sanmer.pki.SSLContextCompat
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -53,8 +53,8 @@ object Docker {
         }
         install(ContentNegotiation) {
             json(JsonCompat.default)
-            containerLog(ContainerLog.RAW)
-            containerLog(ContainerLog.MULTIPLEXED)
+            rawContainerLog()
+            multiplexedContainerLog()
         }
         install(Resources)
         install(UserAgent) {
