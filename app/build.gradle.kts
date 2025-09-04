@@ -12,7 +12,7 @@ plugins {
 
 val baseVersionName = "0.1.2"
 val devVersion = exec("git tag --contains HEAD").isEmpty()
-val commitShaSuffix = commitSha.let { ".${it.substring(0, 7)}" }
+val shaSuffix = gitCommitSha.let { ".${it.substring(0, 7)}" }
 val devSuffix = if (devVersion) ".dev" else ""
 
 android {
@@ -20,23 +20,22 @@ android {
 
     defaultConfig {
         applicationId = namespace
-        versionName = "${baseVersionName}${commitShaSuffix}${devSuffix}"
-        versionCode = commitCount
+        versionName = "${baseVersionName}${shaSuffix}${devSuffix}"
+        versionCode = gitCommitCount
 
         ndk.abiFilters += listOf("arm64-v8a", "x86_64")
     }
 
-    @Suppress("UnstableApiUsage")
     androidResources {
         localeFilters += listOf("en")
     }
 
-    val releaseSigning = if (project.hasReleaseKeyStore) {
+    val releaseSigning = if (hasReleaseKeyStore) {
         signingConfigs.create("release") {
-            storeFile = project.releaseKeyStore
-            storePassword = project.releaseKeyStorePassword
-            keyAlias = project.releaseKeyAlias
-            keyPassword = project.releaseKeyPassword
+            storeFile = releaseKeyStore
+            storePassword = releaseKeyStorePassword
+            keyAlias = releaseKeyAlias
+            keyPassword = releaseKeyPassword
             enableV3Signing = true
             enableV4Signing = true
         }
