@@ -14,15 +14,15 @@ data class HostConfig(
     @SerialName("BlkioWeight")
     val blkioWeight: Int,
     @SerialName("BlkioWeightDevice")
-    val blkioWeightDevice: WeightDevice = WeightDevice(),
+    val blkioWeightDevice: List<WeightDevice> = emptyList(),
     @SerialName("BlkioDeviceReadBps")
-    val blkioDeviceReadBps: ThrottleDevice = ThrottleDevice(),
+    val blkioDeviceReadBps: List<ThrottleDevice> = emptyList(),
     @SerialName("BlkioDeviceWriteBps")
-    val blkioDeviceWriteBps: ThrottleDevice = ThrottleDevice(),
+    val blkioDeviceWriteBps: List<ThrottleDevice> = emptyList(),
     @SerialName("BlkioDeviceReadIOps")
-    val blkioDeviceReadIOps: ThrottleDevice = ThrottleDevice(),
+    val blkioDeviceReadIOps: List<ThrottleDevice> = emptyList(),
     @SerialName("BlkioDeviceWriteIOps")
-    val blkioDeviceWriteIOps: ThrottleDevice = ThrottleDevice(),
+    val blkioDeviceWriteIOps: List<ThrottleDevice> = emptyList(),
     @SerialName("CpuPeriod")
     val cpuPeriod: Long,
     @SerialName("CpuQuota")
@@ -42,21 +42,21 @@ data class HostConfig(
     @SerialName("DeviceRequests")
     val deviceRequests: List<DeviceRequest> = emptyList(),
     @SerialName("KernelMemoryTCP")
-    val kernelMemoryTCP: Long = 0,
+    val kernelMemoryTCP: Long? = null,
     @SerialName("MemoryReservation")
     val memoryReservation: Long,
     @SerialName("MemorySwap")
     val memorySwap: Long,
     @SerialName("MemorySwappiness")
-    val memorySwappiness: Long = 0,
+    val memorySwappiness: Long? = null,
     @SerialName("NanoCpus")
     val nanoCpus: Long,
     @SerialName("OomKillDisable")
     val oomKillDisable: Boolean = false,
     @SerialName("Init")
-    val init: Boolean = false,
+    val init: Boolean? = null,
     @SerialName("PidsLimit")
-    val pidsLimit: Int = 0,
+    val pidsLimit: Int? = null,
     @SerialName("Ulimits")
     val ulimits: List<Ulimit> = emptyList(),
     @SerialName("Binds")
@@ -80,7 +80,7 @@ data class HostConfig(
     @SerialName("Mounts")
     val mounts: List<Mount> = emptyList(),
     @SerialName("ConsoleSize")
-    val consoleSize: List<Int>,
+    val consoleSize: List<Int> = emptyList(),
     @SerialName("Annotations")
     val annotations: Map<String, String> = emptyMap(),
     @SerialName("CapAdd")
@@ -130,26 +130,26 @@ data class HostConfig(
     @SerialName("Sysctls")
     val sysctls: Map<String, String> = emptyMap(),
     @SerialName("Runtime")
-    val runtime: String = "",
+    val runtime: String? = null,
     @SerialName("MaskedPaths")
-    val maskedPaths: List<String>,
+    val maskedPaths: List<String> = emptyList(),
     @SerialName("ReadonlyPaths")
-    val readonlyPaths: List<String>
+    val readonlyPaths: List<String> = emptyList()
 ) {
     @Serializable
     data class WeightDevice(
         @SerialName("Path")
-        val path: String = "",
+        val path: String,
         @SerialName("Weight")
-        val weight: Int = 0
+        val weight: Int
     )
 
     @Serializable
     data class ThrottleDevice(
         @SerialName("Path")
-        val path: String = "",
+        val path: String,
         @SerialName("Rate")
-        val rate: Long = 0
+        val rate: Long
     )
 
     @Serializable
@@ -280,17 +280,17 @@ data class HostConfig(
         @SerialName("Type")
         val type: Type,
         @SerialName("ReadOnly")
-        val readOnly: Boolean,
+        val readOnly: Boolean? = null,
         @SerialName("Consistency")
-        val consistency: String,
+        val consistency: String? = null,
         @SerialName("BindOptions")
-        val bind: Bind,
+        val bind: Bind? = null,
         @SerialName("VolumeOptions")
-        val volume: Volume,
+        val volume: Volume? = null,
         @SerialName("ImageOptions")
-        val image: Image,
+        val image: Image? = null,
         @SerialName("TmpfsOptions")
-        val tmpfs: Tmpfs
+        val tmpfs: Tmpfs? = null
     ) {
         @Serializable
         enum class Type {
