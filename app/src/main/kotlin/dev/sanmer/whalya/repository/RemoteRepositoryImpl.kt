@@ -1,8 +1,6 @@
 package dev.sanmer.whalya.repository
 
-import dev.sanmer.core.Docker.delete
-import dev.sanmer.core.Docker.get
-import dev.sanmer.core.Docker.post
+import dev.sanmer.core.Docker.infiniteTimeout
 import dev.sanmer.core.JsonCompat.encodeJson
 import dev.sanmer.core.converter.toConfig
 import dev.sanmer.core.request.image.OCIPlatform
@@ -31,6 +29,9 @@ import dev.sanmer.core.response.volume.VolumeList
 import dev.sanmer.core.response.volume.VolumePruned
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.delete
+import io.ktor.client.plugins.resources.get
+import io.ktor.client.plugins.resources.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -91,19 +92,27 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun pruneContainers(): ContainerPruned {
-        return client().post(Containers.Prune()).body()
+        return client().post(Containers.Prune()) {
+            infiniteTimeout()
+        }.body()
     }
 
     override suspend fun pruneImages(): ImagePruned {
-        return client().post(Images.Prune()).body()
+        return client().post(Images.Prune()) {
+            infiniteTimeout()
+        }.body()
     }
 
     override suspend fun pruneNetworks(): NetworkPruned {
-        return client().post(Networks.Prune()).body()
+        return client().post(Networks.Prune()) {
+            infiniteTimeout()
+        }.body()
     }
 
     override suspend fun pruneVolumes(): VolumePruned {
-        return client().post(Volumes.Prune()).body()
+        return client().post(Volumes.Prune()) {
+            infiniteTimeout()
+        }.body()
     }
 
     override suspend fun inspectContainer(id: String): ContainerLowLevel {
@@ -185,7 +194,9 @@ class RemoteRepositoryImpl(
     }
 
     override suspend fun pullImage(image: ImageLowLevel) {
-        client().post(Images.Create(fromImage = image.repoTags[0]))
+        client().post(Images.Create(fromImage = image.repoTags[0])) {
+            infiniteTimeout()
+        }
     }
 
     override suspend fun removeImage(id: String): List<ImageRemoved> {

@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.sanmer.core.Docker.get
 import dev.sanmer.core.resource.System
 import dev.sanmer.core.response.system.SystemVersion
 import dev.sanmer.whalya.Logger
@@ -16,6 +15,7 @@ import dev.sanmer.whalya.observer.NetworkObserver
 import dev.sanmer.whalya.repository.ClientRepository
 import dev.sanmer.whalya.repository.DbRepository
 import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.get
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

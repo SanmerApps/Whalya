@@ -8,6 +8,8 @@ import dev.sanmer.pki.SSLContextCompat
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.HttpTimeoutConfig
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -16,10 +18,8 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.LoggingFormat
 import io.ktor.client.plugins.resources.Resources
-import io.ktor.client.plugins.resources.prepareRequest
-import io.ktor.client.plugins.resources.request
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.http.HttpMethod
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import okhttp3.OkHttpClient
@@ -60,38 +60,14 @@ object Docker {
         install(UserAgent) {
             agent = "Docker/$API_VERSION"
         }
+        install(HttpTimeout)
     }
 
-    suspend inline fun <reified T : Any> HttpClient.get(
-        resource: T,
-        builder: HttpRequestBuilder.() -> Unit = {}
-    ) = request(resource) {
-        method = HttpMethod.Get
-        builder()
-    }
-
-    suspend inline fun <reified T : Any> HttpClient.prepareGet(
-        resource: T,
-        builder: HttpRequestBuilder.() -> Unit = {}
-    ) = prepareRequest(resource) {
-        method = HttpMethod.Get
-        builder()
-    }
-
-    suspend inline fun <reified T : Any> HttpClient.post(
-        resource: T,
-        builder: HttpRequestBuilder.() -> Unit = {}
-    ) = request(resource) {
-        method = HttpMethod.Post
-        builder()
-    }
-
-    suspend inline fun <reified T : Any> HttpClient.delete(
-        resource: T,
-        builder: HttpRequestBuilder.() -> Unit = {}
-    ) = request(resource) {
-        method = HttpMethod.Delete
-        builder()
+    fun HttpRequestBuilder.infiniteTimeout() {
+        timeout {
+            requestTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+            socketTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+        }
     }
 
     class MutualTLS(

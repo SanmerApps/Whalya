@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dev.sanmer.core.Docker
-import dev.sanmer.core.Docker.get
 import dev.sanmer.core.resource.System
 import dev.sanmer.core.response.system.SystemVersion
 import dev.sanmer.whalya.Const
@@ -24,6 +23,7 @@ import dev.sanmer.whalya.repository.ClientRepository
 import dev.sanmer.whalya.repository.DbRepository
 import dev.sanmer.whalya.ui.main.Screen
 import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.get
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
