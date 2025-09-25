@@ -6,7 +6,7 @@ build() {
     OUTPUT_DIR=../libs/$1
     TARGET=$2
 
-    cargo build --profile release --target $TARGET
+    cargo +nightly build --profile release --target $TARGET
     mkdir -p $OUTPUT_DIR
     cp target/$TARGET/release/lib${LIB_NAME}.so $OUTPUT_DIR/
 }
