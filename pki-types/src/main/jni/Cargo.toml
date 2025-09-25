@@ -15,5 +15,6 @@ git = "https://github.com/SanmerDev/typed-jni-rs.git"
 
 [profile.release]
 strip = "symbols"
-lto = true
+lto = "fat"
 panic = "abort"
+codegen-units = 1

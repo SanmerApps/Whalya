@@ -43,22 +43,25 @@ jobs:
           ANDROID_NDK_VERSION: 28.2.13676358
         run: |
           sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
-          ANDROID_NDK_HOME="${ANDROID_HOME}/ndk/${{ env.ANDROID_NDK_VERSION }}"
-          ANDROID_NDK_TARGET=`ls ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/`
-          ANDROID_NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/${ANDROID_NDK_TARGET}/bin"
-          echo "$ANDROID_NDK_BIN" >> $GITHUB_PATH
+          ANDROID_NDK_ROOT="${ANDROID_SDK_ROOT}/ndk/${{ env.ANDROID_NDK_VERSION }}"
+          ANDROID_NDK_BUILD=`ls ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/`
+          ANDROID_NDK_PATH="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${ANDROID_NDK_BUILD}/bin"
+          echo "ANDROID_NDK_ROOT=${ANDROID_NDK_ROOT}" >> $GITHUB_ENV
+          echo "ANDROID_NDK_PATH=${ANDROID_NDK_PATH}" >> $GITHUB_ENV
+          echo "${ANDROID_NDK_PATH}" >> $GITHUB_PATH
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
         with:
           targets: aarch64-linux-android,x86_64-linux-android
+          components: rust-src
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build pki-types
         working-directory: pki-types/src/main/jni
-        run: sh build_jni.sh
+        run: ./build_jni.sh
 
       - name: Build with Gradle
         run: ./gradlew assembleRelease

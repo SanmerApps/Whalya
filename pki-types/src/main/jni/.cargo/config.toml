@@ -1,5 +1,9 @@
 [build]
 target = "aarch64-linux-android"
+rustflags = ["-Z", "unstable-options", "-C", "panic=immediate-abort"]
+
+[unstable]
+build-std = ["std"]
 
 [target.aarch64-linux-android]
 linker = "aarch64-linux-android30-clang"
