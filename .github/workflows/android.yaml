@@ -48,7 +48,7 @@ jobs:
           ANDROID_NDK_PATH="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${ANDROID_NDK_BUILD}/bin"
           echo "ANDROID_NDK_ROOT=${ANDROID_NDK_ROOT}" >> $GITHUB_ENV
           echo "ANDROID_NDK_PATH=${ANDROID_NDK_PATH}" >> $GITHUB_ENV
-          echo "ANDROID_NDK_PATH" >> $GITHUB_PATH
+          echo "${ANDROID_NDK_PATH}" >> $GITHUB_PATH
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@nightly
