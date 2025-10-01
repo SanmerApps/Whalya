@@ -12,6 +12,7 @@ git = "https://github.com/SanmerDev/tls-pki-types.git"
 
 [dependencies.typed-jni]
 git = "https://github.com/SanmerDev/typed-jni-rs.git"
+default-features = false
 
 [profile.release]
 strip = "symbols"

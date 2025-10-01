@@ -10,17 +10,14 @@ use typed_jni::{
 
 define_java_class!(JRuntimeException, "java/lang/RuntimeException");
 define_java_class!(JPkiTypes, "dev/sanmer/pki/PkiTypes");
-define_java_class!(
-    JPrivatePkcs8KeyDer,
-    "dev/sanmer/pki/PkiTypes$PrivatePkcs8KeyDer"
-);
+define_java_class!(JPrivatePkcs8KeyDer, "dev/sanmer/pki/PkiTypes$PrivatePkcs8KeyDer");
 
 fn jni_throw(ctx: &Context, message: &str) {
     let message = LocalObject::<JString>::new_string(ctx, message);
-    let c_runtime_exception = LocalClass::<JRuntimeException>::find_class(ctx).unwrap();
-    let o_runtime_exception = c_runtime_exception.new_object(ctx, &message).unwrap();
+    let runtime_exception = LocalClass::<JRuntimeException>::find_class(ctx).unwrap();
+    let runtime_exception = runtime_exception.new_object(ctx, &message).unwrap();
     unsafe {
-        ctx.throw(o_runtime_exception.as_raw());
+        ctx.throw(runtime_exception.as_raw());
     }
 }
 
@@ -30,18 +27,20 @@ macro_rules! jni_throw {
             Ok(v) => v,
             Err(e) => {
                 jni_throw($ctx, &format!("{e:?}"));
-                return None;
+                return Default::default();
             }
         }
     };
 }
 
-fn bytes_array<'ctx>(ctx: &'ctx Context, buf: &[u8]) -> LocalObject<'ctx, Array<i8>> {
-    let array = LocalObject::<Array<i8>>::new_primitive(ctx, buf.len() as _).unwrap();
-    let mut elements = array.get_bytes_elements(ctx);
-    elements.copy_from_slice(buf);
-    elements.commit();
-    array
+macro_rules! bytes_array {
+    ($ctx:expr, $buf:expr) => {{
+        let array = LocalObject::<Array<i8>>::new_primitive($ctx, $buf.len() as _).unwrap();
+        let mut elements = array.get_bytes_elements($ctx);
+        elements.copy_from_slice($buf);
+        elements.commit();
+        array
+    }};
 }
 
 #[no_mangle]
@@ -64,7 +63,7 @@ pub extern "C" fn Java_dev_sanmer_pki_PkiTypes_loadToPkcs8<'ctx>(
     };
 
     let der = pkcs8.der_encoded().unwrap();
-    let encoded = bytes_array(ctx, &der);
+    let encoded = bytes_array!(ctx, &der);
 
     let algorithm = if let Some(parameters) = pkcs8.algorithm.parameters {
         match parameters {
@@ -77,12 +76,12 @@ pub extern "C" fn Java_dev_sanmer_pki_PkiTypes_loadToPkcs8<'ctx>(
     };
     let algorithm = LocalObject::<JString>::new_string(ctx, algorithm);
 
-    let c_key = LocalClass::<JPrivatePkcs8KeyDer>::find_class(ctx).unwrap();
-    Some(c_key.new_object(ctx, (&encoded, &algorithm)).unwrap())
+    let key = LocalClass::<JPrivatePkcs8KeyDer>::find_class(ctx).unwrap();
+    Some(key.new_object(ctx, (&encoded, &algorithm)).unwrap())
 }
 
 macro_rules! converter {
-    ($name:ident, $input_type:ty, $output_type:ty) => {
+    ($name:ident, $input:ty, $output:ty) => {
         #[no_mangle]
         pub extern "C" fn $name<'ctx>(
             ctx: &'ctx Context,
@@ -90,11 +89,11 @@ macro_rules! converter {
             der: TrampolineObject<'ctx, Array<i8>>,
         ) -> Option<LocalObject<'ctx, Array<i8>>> {
             let der = der.get_bytes_elements(ctx);
-            let input = jni_throw!(ctx, <$input_type>::from_der_slice(&der));
-            let output = jni_throw!(ctx, <$output_type>::try_from(&input));
+            let input = jni_throw!(ctx, <$input>::from_der_slice(&der));
+            let output = jni_throw!(ctx, <$output>::try_from(&input));
 
             let der = output.der_encoded().unwrap();
-            Some(bytes_array(ctx, &der))
+            Some(bytes_array!(ctx, &der))
         }
     };
 }
