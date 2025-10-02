@@ -1,4 +1,4 @@
-package dev.sanmer.whalya.ui.component.ansi
+package dev.sanmer.whalya.ansi
 
 enum class ANSIParameter {
     Normal,

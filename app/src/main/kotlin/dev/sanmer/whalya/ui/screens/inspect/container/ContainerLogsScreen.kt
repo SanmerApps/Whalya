@@ -31,11 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import dev.sanmer.core.response.container.ContainerLog
 import dev.sanmer.whalya.R
+import dev.sanmer.whalya.ansi.ANSI.appendANSI
 import dev.sanmer.whalya.model.LoadData
 import dev.sanmer.whalya.ui.component.Failed
 import dev.sanmer.whalya.ui.component.Loading
 import dev.sanmer.whalya.ui.component.SearchContent
-import dev.sanmer.whalya.ui.component.ansi.appendANSIOrDefault
 import dev.sanmer.whalya.ui.ktx.plus
 import org.koin.androidx.compose.koinViewModel
 
@@ -101,7 +101,7 @@ private fun ContainerLogsContent(
                 val text by remember(it) {
                     derivedStateOf {
                         buildAnnotatedString {
-                            appendANSIOrDefault(it.content)
+                            appendANSI(it.content)
                         }
                     }
                 }
