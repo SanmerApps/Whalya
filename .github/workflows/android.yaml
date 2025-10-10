@@ -40,7 +40,7 @@ jobs:
 
       - name: Set up Android NDK
         env:
-          ANDROID_NDK_VERSION: 28.2.13676358
+          ANDROID_NDK_VERSION: 29.0.14206865
         run: |
           sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
           ANDROID_NDK_ROOT="${ANDROID_SDK_ROOT}/ndk/${{ env.ANDROID_NDK_VERSION }}"
