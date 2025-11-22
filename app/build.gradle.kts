@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.rikka.refine)
 }
 
-val baseVersionName = "0.1.2"
+val baseVersionName = "0.1.3"
 val devVersion = exec("git tag --contains HEAD").isEmpty()
 val shaSuffix = gitCommitSha.let { ".${it.substring(0, 7)}" }
 val devSuffix = if (devVersion) ".dev" else ""
