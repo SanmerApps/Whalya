@@ -11,10 +11,4 @@ object PkiTypes {
     )
 
     external fun loadToPkcs8(pem: ByteArray): PrivatePkcs8KeyDer
-
-    external fun pkcs8ToSec1(der: ByteArray): ByteArray
-    external fun sec1ToPkcs8(der: ByteArray): ByteArray
-
-    external fun pkcs8ToPkcs1(der: ByteArray): ByteArray
-    external fun pkcs1ToPkcs8(der: ByteArray): ByteArray
 }

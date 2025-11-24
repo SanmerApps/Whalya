@@ -1,11 +1,8 @@
-use tls_pki_types::{
-    DerObject, Pkcs8Parameters, PrivateKeyDer, PrivatePkcs1KeyDer, PrivatePkcs8KeyDer,
-    PrivateSec1KeyDer,
-};
+use tls_pki_types::{DerObject, Pkcs8Parameters, PrivateKeyDer, PrivatePkcs8KeyDer};
 use typed_jni::core::JNIEnv;
 use typed_jni::{
-    define_java_class, Array, TrampolineClass, TrampolineObject, TypedCallExt, TypedClassExt,
-    TypedPrimitiveArrayExt, TypedRef, TypedStringExt,
+    Array, TrampolineClass, TrampolineObject, TypedCallExt, TypedClassExt, TypedPrimitiveArrayExt,
+    TypedRef, TypedStringExt, define_java_class,
 };
 
 define_java_class!(JRuntimeException, "java/lang/RuntimeException");
@@ -46,8 +43,8 @@ macro_rules! bytes_array {
     }};
 }
 
-#[no_mangle]
-pub extern "C" fn Java_dev_sanmer_pki_PkiTypes_loadToPkcs8<'env>(
+#[unsafe(export_name = "Java_dev_sanmer_pki_PkiTypes_loadToPkcs8")]
+pub extern "C" fn load_to_pkcs8<'env>(
     env: &'env JNIEnv,
     _class: TrampolineClass<'env, JPkiTypes>,
     pem: TrampolineObject<'env, Array<i8>>,
@@ -77,46 +74,3 @@ pub extern "C" fn Java_dev_sanmer_pki_PkiTypes_loadToPkcs8<'env>(
     let obj = env.typed_new_object(&cls, (&encoded, &algorithm)).unwrap();
     Some(obj.into_trampoline())
 }
-
-macro_rules! converter {
-    ($name:ident, $input:ty, $output:ty) => {
-        #[no_mangle]
-        pub extern "C" fn $name<'env>(
-            env: &'env JNIEnv,
-            _class: TrampolineClass<'env, JPkiTypes>,
-            der: TrampolineObject<'env, Array<i8>>,
-        ) -> Option<TrampolineObject<'env, Array<i8>>> {
-            let der = env.typed_get_bytes_array_elements(&der).unwrap();
-            let input = jni_throw!(env, <$input>::from_der_slice(&der));
-            let output = jni_throw!(env, <$output>::try_from(&input));
-
-            let der = output.der_encoded().unwrap();
-            let array = bytes_array!(env, &der);
-            Some(array.into_trampoline())
-        }
-    };
-}
-
-converter!(
-    Java_dev_sanmer_pki_PkiTypes_pkcs8ToSec1,
-    PrivatePkcs8KeyDer,
-    PrivateSec1KeyDer
-);
-
-converter!(
-    Java_dev_sanmer_pki_PkiTypes_sec1ToPkcs8,
-    PrivateSec1KeyDer,
-    PrivatePkcs8KeyDer
-);
-
-converter!(
-    Java_dev_sanmer_pki_PkiTypes_pkcs8ToPkcs1,
-    PrivatePkcs8KeyDer,
-    PrivatePkcs1KeyDer
-);
-
-converter!(
-    Java_dev_sanmer_pki_PkiTypes_pkcs1ToPkcs8,
-    PrivatePkcs1KeyDer,
-    PrivatePkcs8KeyDer
-);
