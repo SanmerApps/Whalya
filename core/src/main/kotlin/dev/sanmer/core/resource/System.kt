@@ -9,9 +9,4 @@ class System {
 
     @Resource("version")
     class Version
-
-    @Resource("df")
-    class DataUsage(
-        val parent: System = System()
-    )
 }

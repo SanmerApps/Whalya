@@ -36,7 +36,7 @@ data class Network(
     @SerialName("ConfigOnly")
     val configOnly: Boolean = false,
     @SerialName("Containers")
-    val containers: Map<String, NetworkContainer>,
+    val containers: Map<String, NetworkContainer> = emptyMap(),
     @SerialName("Options")
     val options: Map<String, String> = emptyMap(),
     @SerialName("Labels")

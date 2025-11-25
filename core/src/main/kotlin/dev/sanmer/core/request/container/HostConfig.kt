@@ -41,8 +41,6 @@ data class HostConfig(
     val deviceCgroupRules: List<String> = emptyList(),
     @SerialName("DeviceRequests")
     val deviceRequests: List<DeviceRequest> = emptyList(),
-    @SerialName("KernelMemoryTCP")
-    val kernelMemoryTCP: Long? = null,
     @SerialName("MemoryReservation")
     val memoryReservation: Long,
     @SerialName("MemorySwap")

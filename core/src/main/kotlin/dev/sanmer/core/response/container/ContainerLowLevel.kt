@@ -197,49 +197,13 @@ data class ContainerLowLevel(
 
     @Serializable
     data class NetworkSettings(
-        @SerialName("Bridge")
-        val bridge: String,
         @SerialName("SandboxID")
         val sandboxId: String,
-        @SerialName("HairpinMode")
-        val hairpinMode: Boolean,
-        @SerialName("LinkLocalIPv6Address")
-        val linkLocalIPv6Address: String,
-        @SerialName("LinkLocalIPv6PrefixLen")
-        val linkLocalIPv6PrefixLen: Int,
         @SerialName("Ports")
         val ports: Map<String, List<HostConfig.PortBinding>?> = emptyMap(),
         @SerialName("SandboxKey")
         val sandboxKey: String,
-        @SerialName("SecondaryIPAddresses")
-        val secondaryIPAddresses: List<Address> = emptyList(),
-        @SerialName("SecondaryIPv6Addresses")
-        val secondaryIPv6Addresses: List<Address> = emptyList(),
-        @SerialName("EndpointID")
-        val endpointId: String,
-        @SerialName("Gateway")
-        val gateway: String,
-        @SerialName("GlobalIPv6Address")
-        val globalIPv6Address: String,
-        @SerialName("GlobalIPv6PrefixLen")
-        val globalIPv6PrefixLen: Long,
-        @SerialName("IPAddress")
-        val ipAddress: String,
-        @SerialName("IPPrefixLen")
-        val ipPrefixLen: Long,
-        @SerialName("IPv6Gateway")
-        val ipv6Gateway: String,
-        @SerialName("MacAddress")
-        val macAddress: String,
         @SerialName("Networks")
         val networks: Map<String, ContainerConfig.Networking.EndpointSettings>
-    ) {
-        @Serializable
-        data class Address(
-            @SerialName("Addr")
-            val addr: String,
-            @SerialName("PrefixLen")
-            val prefixLen: Int
-        )
-    }
+    )
 }

@@ -15,17 +15,9 @@ data class ImageLowLevel(
     val repoTags: List<String> = emptyList(),
     @SerialName("RepoDigests")
     val repoDigests: List<String>,
-    @SerialName("Parent")
-    val parent: String = "",
-    @SerialName("Comment")
-    val comment: String = "",
     @SerialName("Created")
     @Contextual
     val created: Instant = Instant.fromEpochMilliseconds(0),
-    @SerialName("DockerVersion")
-    val dockerVersion: String = "",
-    @SerialName("Author")
-    val author: String,
     @SerialName("Config")
     val config: Config,
     @SerialName("Architecture")

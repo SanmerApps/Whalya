@@ -30,6 +30,8 @@ fun ContainerLowLevel.toConfig() = ContainerConfig(
     shell = config.shell,
     hostConfig = hostConfig,
     networkingConfig = ContainerConfig.Networking(
-        endpointsConfig = networkSettings.networks
+        endpointsConfig = networkSettings.networks.mapValues {
+            it.value.copy(macAddress = "")
+        }
     )
 )
