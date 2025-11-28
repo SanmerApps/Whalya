@@ -52,8 +52,8 @@ pub extern "C" fn load_to_pkcs8<'env>(
     let pem = env.typed_get_bytes_array_elements(&pem).unwrap();
     let pkcs8 = match jni_throw!(env, PrivateKeyDer::from_pem_slice(&pem)) {
         PrivateKeyDer::Pkcs8(pk) => pk,
-        PrivateKeyDer::Sec1(pk) => jni_throw!(env, PrivatePkcs8KeyDer::try_from(&pk)),
-        PrivateKeyDer::Pkcs1(pk) => jni_throw!(env, PrivatePkcs8KeyDer::try_from(&pk)),
+        PrivateKeyDer::Sec1(pk) => jni_throw!(env, PrivatePkcs8KeyDer::try_from(pk)),
+        PrivateKeyDer::Pkcs1(pk) => jni_throw!(env, PrivatePkcs8KeyDer::try_from(pk)),
     };
 
     let der = pkcs8.der_encoded().unwrap();
