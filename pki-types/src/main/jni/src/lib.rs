@@ -2,7 +2,7 @@ use tls_pki_types::{DerObject, Pkcs8Parameters, PrivateKeyDer, PrivatePkcs8KeyDe
 use typed_jni::core::JNIEnv;
 use typed_jni::{
     Array, TrampolineClass, TrampolineObject, TypedCallExt, TypedClassExt, TypedPrimitiveArrayExt,
-    TypedRef, TypedStringExt, define_java_class,
+    TypedRef, TypedStringExt, TypedThrowableExt, define_java_class,
 };
 
 define_java_class!(JRuntimeException, "java/lang/RuntimeException");
@@ -12,11 +12,23 @@ define_java_class!(
     "dev/sanmer/pki/PkiTypes$PrivatePkcs8KeyDer"
 );
 
-fn jni_throw(env: &JNIEnv, message: &str) {
+macro_rules! call {
+    ($env:expr, $ret:expr) => {
+        match $ret {
+            Ok(r) => r,
+            Err(e) => {
+                $env.typed_throw(&e);
+                return Default::default();
+            }
+        }
+    };
+}
+
+fn jni_throw<S: AsRef<str>>(env: &JNIEnv, message: S) {
     let message = env.typed_new_string(message);
-    let re_cls = env.typed_find_class::<JRuntimeException>().unwrap();
-    let re = env.typed_new_object(&re_cls, (message,)).unwrap();
-    unsafe { env.throw(&re.into_ref()) }
+    let cls = call!(env, env.typed_find_class::<JRuntimeException>());
+    let obj = call!(env, env.typed_new_object(&cls, (message,)));
+    unsafe { env.throw(&obj.into_ref()) }
 }
 
 macro_rules! jni_throw {
@@ -24,7 +36,7 @@ macro_rules! jni_throw {
         match $block {
             Ok(v) => v,
             Err(e) => {
-                jni_throw($env, &format!("{e:?}"));
+                jni_throw($env, format!("{e:?}"));
                 return Default::default();
             }
         }
@@ -33,10 +45,8 @@ macro_rules! jni_throw {
 
 macro_rules! bytes_array {
     ($env:expr, $buf:expr) => {{
-        let array = $env
-            .typed_new_primitive_array::<i8>($buf.len() as _)
-            .unwrap();
-        let mut elements = $env.typed_get_bytes_array_elements(&array).unwrap();
+        let array = call!($env, $env.typed_new_primitive_array::<i8>($buf.len() as _));
+        let mut elements = call!($env, $env.typed_get_bytes_array_elements(&array));
         elements.copy_from_slice($buf);
         elements.commit();
         array
@@ -49,16 +59,14 @@ pub extern "C" fn load_to_pkcs8<'env>(
     _class: TrampolineClass<'env, JPkiTypes>,
     pem: TrampolineObject<'env, Array<i8>>,
 ) -> Option<TrampolineObject<'env, JPrivatePkcs8KeyDer>> {
-    let pem = env.typed_get_bytes_array_elements(&pem).unwrap();
+    let pem = call!(env, env.typed_get_bytes_array_elements(&pem));
     let pkcs8 = match jni_throw!(env, PrivateKeyDer::from_pem_slice(&pem)) {
         PrivateKeyDer::Pkcs8(pk) => pk,
         PrivateKeyDer::Sec1(pk) => jni_throw!(env, PrivatePkcs8KeyDer::try_from(pk)),
         PrivateKeyDer::Pkcs1(pk) => jni_throw!(env, PrivatePkcs8KeyDer::try_from(pk)),
     };
-
-    let der = pkcs8.der_encoded().unwrap();
+    let der = jni_throw!(env, pkcs8.der_encoded());
     let encoded = bytes_array!(env, &der);
-
     let algorithm = if let Some(parameters) = pkcs8.algorithm.parameters {
         match parameters {
             Pkcs8Parameters::Ec(_) => "EC",
@@ -69,8 +77,7 @@ pub extern "C" fn load_to_pkcs8<'env>(
         ""
     };
     let algorithm = env.typed_new_string(algorithm);
-
-    let cls = env.typed_find_class::<JPrivatePkcs8KeyDer>().unwrap();
-    let obj = env.typed_new_object(&cls, (&encoded, &algorithm)).unwrap();
+    let cls = call!(env, env.typed_find_class::<JPrivatePkcs8KeyDer>());
+    let obj = call!(env, env.typed_new_object(&cls, (&encoded, &algorithm)));
     Some(obj.into_trampoline())
 }
