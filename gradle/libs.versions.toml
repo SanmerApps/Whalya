@@ -16,11 +16,11 @@ cashLicensee = "1.14.1"
 hiddenApiRefine = "4.4.0"
 hiddenApiBypass = "6.1"
 koin = "4.1.1"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 kotlinxCoroutines = "1.10.2"
 kotlinxDatetime = "0.7.1"
 kotlinxSerialization = "1.9.0"
-ksp = "2.3.3"
+ksp = "2.3.4"
 ktor = "3.3.3"
 
 [libraries]
